@@ -1,0 +1,18 @@
+.button{
+ padding: 50px;
+ margin-right: 10px;                                
+}
+.container{
+ border-radius: 10px;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ margin-top: 50px;
+ 
+
+} 
+.LogoImage{
+    margin-top: 10px;
+    
+    
+}
