@@ -7,7 +7,7 @@ export default function Home() {
     <main className={styles.home}>
           <Navbar/>
          <h1>This is a home page </h1>
-         
+         <h1>Msizi</h1>
     </main>
   );
 }
