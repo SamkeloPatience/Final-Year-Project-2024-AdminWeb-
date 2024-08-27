@@ -1,18 +1,24 @@
-.button{
- padding: 50px;
- margin-right: 10px;                                
+.section{
+    background-color:white;
 }
-.container{
- border-radius: 10px;
- display: flex;
- justify-content: center;
- align-items: center;
- margin-top: 50px;
- 
+.card{
+    
+}
+.i{
+    color: #ff6219;
+}
+.img{
+    border-radius: 1rem 0 0 1rem;
+}
+.Login{
+   background-image: url('../public/images/logo.jpg');
+   background-size: cover;
+   background-repeat: no-repeat;
+   background-size: 450px;
+   background-position: center;
+   opacity: 0.6;
+   border-style: solid;
+  border-color: black;
+  
 
-} 
-.LogoImage{
-    margin-top: 10px;
-    
-    
 }
