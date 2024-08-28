@@ -6,7 +6,7 @@ import Image from "next/image";
 export default function Navbar() {
   return (
     <main>
-      <nav className= { `navbar navbar-expand-sm ${styles.nav} `} >
+      <nav className= { `navbar navbar-expand-sm text-bg-info`} >
         <ul>
         <Image
           src={logo}

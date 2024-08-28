@@ -1,10 +1,16 @@
 "user client "
 
+import Footer from "@components/Footer"
+import Navbar2 from "@components/Navbar2"
+
+
 
 export default function Visulization(){
     return(
         <main>
-         <h1>Nosipho</h1>
+         <Navbar2/>
+         <h5>lkjhg;lkkjh</h5>
+         <Footer/>
         </main>
     )
 }

@@ -41,15 +41,15 @@ export default function Login() {
               className={styles.loginImage3}
             />
           </div>
-
-          <div
-            className={`col-sm-12 col-md-6 col-lg-6 ${styles.imageContainer2}`} >
-            <h6 className= {`justify-content-center`}>@admin</h6>
+      <div className= {`row`}>
+        <div className={`col-sm-12 col-md-6 col-lg-6 ${styles.imageContainer2}`} > 
+          <h6 className= {`justify-content-center`}>@admin</h6>
           </div>
           <div className={`col-sm-12 col-md-6 col-lg-6 d-flex jusify-content-end ${styles.imageContainer3}`}>
            <h6>@admin</h6>
           </div>
         </div>
+      </div>
         <div className={`col-sm-12 col-md-6 col-lg-6 d-flex justify-content-end ${styles.formContainer1}`}>
           <div className={`p-4 p-lg-5 text-black`}>
             <form
