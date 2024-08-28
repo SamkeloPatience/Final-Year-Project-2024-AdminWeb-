@@ -4,7 +4,7 @@
 export default function Visulization(){
     return(
         <main>
-         <h1>Hello there!!</h1>
+         <h1>Nosipho</h1>
         </main>
     )
 }
