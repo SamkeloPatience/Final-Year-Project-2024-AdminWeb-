@@ -31,7 +31,7 @@ export default function Navbar2() {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="notification">
+              <a className="nav-link" href="notification/api">
                 Notification
               </a>
             </li>
