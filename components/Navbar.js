@@ -19,7 +19,7 @@ export default function Navbar() {
           <h6 className = {`text-left text-dark`}>admin@unizulu</h6>
         
         </ul>
-        <div className={`${styles.navlink}`}>
+        <div className={`col-sm-12 col-md-4 col-lg-4 ${styles.navlink}`}>
           <ul className={`navbar-nav ${styles.nav}`}>
           <li className="nav-item">
               <a className="nav-link" href= '../'>

@@ -50,7 +50,7 @@ export default function Login() {
           </div>
         </div>
       </div>
-        <div className={`col-sm-12 col-md-6 col-lg-6 d-flex justify-content-end ${styles.formContainer1}`}>
+        <div className={`col-sm-12 col-md-4 col-lg-6 d-flex justify-content-end ${styles.formContainer1}`}>
           <div className={`p-4 p-lg-5 text-black`}>
             <form
               onSubmit={handleSubmit}

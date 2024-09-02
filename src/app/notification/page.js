@@ -10,7 +10,7 @@ import { Dropdown } from 'react-bootstrap'; // Import React Bootstrap components
 
 async function fetchDataFromFirestore() {
   try {
-    const collections = ["Reports", "Report2", "Report3"]; // List your collections here
+    const collections = ["Reports", "Report2", "Report3", "Report4"]; // List your collections here
     const data = {};
 
     for (const collectionName of collections) {
