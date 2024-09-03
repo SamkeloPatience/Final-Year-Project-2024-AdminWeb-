@@ -10,7 +10,7 @@ export default function Visulization(){
     return(
         <main>
          <Navbar2/>
-         <h4>hi, you look beautiful</h4>
+         <h4>hi,</h4>
          <Footer/>
         </main>
     )

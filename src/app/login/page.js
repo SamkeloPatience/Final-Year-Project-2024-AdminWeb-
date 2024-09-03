@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "@styles/login.module.css";
+import { db } from "../notification/api/firebaseConfig";
 
 export default function Login() {
   const router = useRouter();
