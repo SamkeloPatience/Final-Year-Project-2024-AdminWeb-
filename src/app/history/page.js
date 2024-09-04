@@ -1,25 +1,10 @@
-"use client" 
+// History.js
 import React, { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig";
 import Navbar2 from "@components/Navbar2";
-import styles from "@styles/notification.module.css";
 import Footer from "@components/Footer";
-
-async function fetchHistoryDataFromFirestore() {
-  try {
-    const colRef = collection(db, "History");
-    const querySnapshot = await getDocs(colRef);
-    const data = [];
-    querySnapshot.forEach((doc) => {
-      data.push({ id: doc.id, ...doc.data() });
-    });
-    return data;
-  } catch (error) {
-    console.error("Error fetching history data from Firestore:", error);
-    return [];
-  }
-}
+import styles from "@styles/notification.module.css";
 
 export default function History() {
   const [historyData, setHistoryData] = useState([]);
@@ -27,49 +12,28 @@ export default function History() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchHistory() {
       try {
-        const result = await fetchHistoryDataFromFirestore();
-        setHistoryData(result);
+        const colRef = collection(db, "History");
+        const querySnapshot = await getDocs(colRef);
+        const items = [];
+        querySnapshot.forEach((doc) => {
+          items.push({ id: doc.id, ...doc.data() });
+        });
+        setHistoryData(items);
       } catch (error) {
-        console.error("Error fetching data:", error);
-        setError("Error fetching data");
+        console.error("Error fetching history data:", error);
+        setError("Error fetching history data");
       } finally {
         setLoading(false);
       }
     }
 
-    fetchData();
+    fetchHistory();
   }, []);
 
   if (loading) {
     return <p>Loading history...</p>;
   }
-
-  return (
-    <main>
-      <Navbar2 />
-      {error && <p>Error: {error}</p>}
-      {historyData.length > 0 ? (
-        <section className={`${styles.cd}`}>
-          <div>
-            {historyData.map((item) => (
-              <div key={item.id} className={styles.items}>
-                <p className={`${styles.description}`}>
-                  Description<br/>{item.Description || 'N/A'} <br/>
-                </p>
-                <p className={`${styles.location}`}>Location<br/>{item.Location || 'N/A'}</p>
-                <p className={`${styles.reportedBy}`}>ReportedBy<br/>{item.ReportedBy || 'N/A'}</p>
-                <p className={`${styles.image}`}>Image<br/>{item.Image || 'N/A'}</p>
-                <p className={`${styles.solved}`}>Status<br/>Solved</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      ) : (
-        <p>No solved issues found</p>
-      )}
-      <Footer />
-    </main>
-  );
 }
+  return; 

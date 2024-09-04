@@ -1,14 +1,15 @@
-"use client" 
-
+"use client"
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, updateDoc, doc, setDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig";
 import Navbar2 from "@components/Navbar2";
 import styles from "@styles/notification.module.css";
 import Footer from "@components/Footer";
-import { Dropdown } from 'react-bootstrap';
+import { Dropdown } from "react-bootstrap";
+import Stack from "./stack";
 
-async function fetchDataFromFirestore() {
+async function fetchDataFromFirestore(stack) {
   try {
     const collections = ["Reports"];
     const data = {};
@@ -17,10 +18,12 @@ async function fetchDataFromFirestore() {
       const colRef = collection(db, collectionName);
       const querySnapshot = await getDocs(colRef);
 
-      data[collectionName] = [];
       querySnapshot.forEach((doc) => {
-        data[collectionName].push({ id: doc.id, ...doc.data() });
+        const docData = { id: doc.id, ...doc.data() };
+        stack.push(docData);
       });
+
+      data[collectionName] = stack.getStack();
     }
 
     return data;
@@ -30,23 +33,26 @@ async function fetchDataFromFirestore() {
   }
 }
 
-async function markAsSolvedAndMove(collectionName, itemId) {
+async function assignTask(collectionName, itemId, assignee) {
   try {
     const docRef = doc(db, collectionName, itemId);
 
-    // Get the document data
-    const docSnap = await getDocs(docRef);
-    const data = docSnap.data();
+    const docSnap = await docRef.get();
 
-    // Add the document to the "History" collection
-    await setDoc(doc(db, "History", itemId), { ...data, solved: true });
+    if (docSnap.exists()) {
+      const data = docSnap.data();
 
-    // Delete the document from the original collection
-    await deleteDoc(docRef);
+      await updateDoc(docRef, { assignedTo: assignee });
+      await setDoc(doc(db, "History", itemId), { ...data, solved: true });
+      await deleteDoc(docRef);
 
-    return true;
+      return true;
+    } else {
+      console.error("Document does not exist");
+      return false;
+    }
   } catch (error) {
-    console.error("Error moving document:", error);
+    console.error("Error assigning task and moving document:", error);
     return false;
   }
 }
@@ -58,10 +64,13 @@ export default function Notification() {
   const [dropdownItems, setDropdownItems] = useState({});
   const [activeDropdown, setActiveDropdown] = useState(null);
 
+  const navigate = useNavigate(); // Initialize navigate
+
   useEffect(() => {
     async function fetchData() {
+      const stack = new Stack();
       try {
-        const result = await fetchDataFromFirestore();
+        const result = await fetchDataFromFirestore(stack);
         setData(result);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -77,35 +86,34 @@ export default function Notification() {
   const handleDropdownToggle = async (collectionName, itemId) => {
     if (activeDropdown === itemId) {
       setActiveDropdown(null);
-      setDropdownItems(prevState => ({ ...prevState, [itemId]: [] }));
+      setDropdownItems((prevState) => ({ ...prevState, [itemId]: [] }));
       return;
     }
 
     try {
-      const colRef = collection(db, collectionName);
+      const colRef = collection(db, "Assign");
       const querySnapshot = await getDocs(colRef);
       const items = [];
+
       querySnapshot.forEach((doc) => {
         items.push({ id: doc.id, ...doc.data() });
       });
-      setDropdownItems(prevState => ({ ...prevState, [itemId]: items }));
+
+      setDropdownItems((prevState) => ({ ...prevState, [itemId]: items }));
       setActiveDropdown(itemId);
     } catch (error) {
       console.error("Error fetching dropdown items:", error);
-      setDropdownItems(prevState => ({ ...prevState, [itemId]: [] }));
+      setDropdownItems((prevState) => ({ ...prevState, [itemId]: [] }));
       setActiveDropdown(null);
     }
   };
 
-  const handleMarkAsSolved = async (collectionName, itemId) => {
-    const success = await markAsSolvedAndMove(collectionName, itemId);
+  const handleAssign = async (collectionName, itemId, assignee) => {
+    const success = await assignTask(collectionName, itemId, assignee);
     if (success) {
-      // Update local state to remove the solved issue
-      setData(prevData => {
-        const updatedData = { ...prevData };
-        updatedData[collectionName] = updatedData[collectionName].filter(item => item.id !== itemId);
-        return updatedData;
-      });
+      navigate('/history');
+    } else {
+      alert("Failed to assign task");
     }
   };
 
@@ -122,28 +130,51 @@ export default function Notification() {
           <section className={`${styles.cd}`} key={collectionName}>
             <div>
               {data[collectionName].length > 0 ? (
-                data[collectionName].map((item) => (
-                  <div 
-                    key={item.id} 
-                    className={`${styles.items} ${item.solved ? styles.solved : ''}`}
-                    onClick={() => handleMarkAsSolved(collectionName, item.id)}
+                data[collectionName].map((item, index) => (
+                  <div
+                    key={index}
+                    className={`${styles.items} ${item.solved ? styles.solved : ""}`}
                   >
                     <p className={`${styles.description}`}>
-                      Description<br/>{item.Description || 'N/A'} <br/>
+                      Description
+                      <br />
+                      {item.Description || "N/A"} <br />
                     </p>
-                    <p className={`${styles.location}`}>Location<br/>{item.Location || 'N/A'}</p>
-                    <p className={`${styles.reportedBy}`}>ReportedBy<br/>{item.ReportedBy || 'N/A'}</p>
-                    <p className={`${styles.image}`}>Image<br/>{item.Image || 'N/A'}</p>
+                    <p className={`${styles.location}`}>
+                      Location
+                      <br />
+                      {item.Location || "N/A"}
+                    </p>
+                    <p className={`${styles.reportedBy}`}>
+                      ReportedBy
+                      <br />
+                      {item.ReportedBy || "N/A"}
+                    </p>
+                    <p className={`${styles.image}`}>
+                      Image
+                      <br />
+                      {item.Image || "N/A"}
+                    </p>
 
-                    <Dropdown onToggle={() => handleDropdownToggle(collectionName, item.id)}>
-                      <Dropdown.Toggle variant="primary" id={`dropdown-basic-${item.id}`}>
+                    <Dropdown
+                      onToggle={() => handleDropdownToggle(collectionName, item.id)}
+                    >
+                      <Dropdown.Toggle
+                        variant="primary"
+                        id={`dropdown-basic-${item.id}`}
+                      >
                         Assign
                       </Dropdown.Toggle>
 
                       <Dropdown.Menu>
                         {(dropdownItems[item.id] || []).map((dropdownItem) => (
-                          <Dropdown.Item key={dropdownItem.id} href={`#/${dropdownItem.id}`}>
-                            {dropdownItem.Assign || 'Not available'}
+                          <Dropdown.Item
+                            key={dropdownItem.id}
+                            onClick={() =>
+                              handleAssign(collectionName, item.id, dropdownItem.name)
+                            }
+                          >
+                            {dropdownItem.name || "Not available"}
                           </Dropdown.Item>
                         ))}
                       </Dropdown.Menu>
