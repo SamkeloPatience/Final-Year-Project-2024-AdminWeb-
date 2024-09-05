@@ -1,49 +1,52 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, updateDoc, doc, setDoc, deleteDoc } from "firebase/firestore";
+import { useRouter } from 'next/navigation';
+import { collection, getDocs, updateDoc, doc, setDoc, deleteDoc, getDoc } from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig";
 import Navbar2 from "@components/Navbar2";
 import styles from "@styles/notification.module.css";
 import Footer from "@components/Footer";
 import { Dropdown } from "react-bootstrap";
-import Stack from "./stack";
+import Stack from "./stack"; 
 
 async function fetchDataFromFirestore(stack) {
   try {
     const collections = ["Reports"];
     const data = {};
-
     for (const collectionName of collections) {
       const colRef = collection(db, collectionName);
       const querySnapshot = await getDocs(colRef);
-
       querySnapshot.forEach((doc) => {
         const docData = { id: doc.id, ...doc.data() };
         stack.push(docData);
+
       });
-
       data[collectionName] = stack.getStack();
-    }
 
+    }
     return data;
   } catch (error) {
     console.error("Error fetching data from Firestore:", error);
     return {};
-  }
-}
 
+  }
+
+}
 async function assignTask(collectionName, itemId, assignee) {
   try {
     const docRef = doc(db, collectionName, itemId);
-
-    const docSnap = await docRef.get();
+    const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
       const data = docSnap.data();
 
+      // Update the document with the new assignee
       await updateDoc(docRef, { assignedTo: assignee });
+
+      // Move the document to the "History" collection
       await setDoc(doc(db, "History", itemId), { ...data, solved: true });
+
+      // Delete the document from the original collection
       await deleteDoc(docRef);
 
       return true;
@@ -57,14 +60,14 @@ async function assignTask(collectionName, itemId, assignee) {
   }
 }
 
+
 export default function Notification() {
   const [data, setData] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dropdownItems, setDropdownItems] = useState({});
   const [activeDropdown, setActiveDropdown] = useState(null);
-
-  const navigate = useNavigate(); // Initialize navigate
+  const router = useRouter(); 
 
   useEffect(() => {
     async function fetchData() {
@@ -111,7 +114,7 @@ export default function Notification() {
   const handleAssign = async (collectionName, itemId, assignee) => {
     const success = await assignTask(collectionName, itemId, assignee);
     if (success) {
-      navigate('/history');
+      router.push(`../history?itemId=${encodeURIComponent(itemId)}`);
     } else {
       alert("Failed to assign task");
     }
@@ -157,6 +160,7 @@ export default function Notification() {
                     </p>
 
                     <Dropdown
+                      show={activeDropdown === item.id} 
                       onToggle={() => handleDropdownToggle(collectionName, item.id)}
                     >
                       <Dropdown.Toggle
@@ -169,13 +173,11 @@ export default function Notification() {
                       <Dropdown.Menu>
                         {(dropdownItems[item.id] || []).map((dropdownItem) => (
                           <Dropdown.Item
-                            key={dropdownItem.id}
-                            onClick={() =>
-                              handleAssign(collectionName, item.id, dropdownItem.name)
-                            }
-                          >
-                            {dropdownItem.name || "Not available"}
-                          </Dropdown.Item>
+                          key={dropdownItem.id}
+                          onClick={() => handleAssign(collectionName, item.id, dropdownItem.name)}
+                        >
+                          {dropdownItem.name || "Not available"}
+                        </Dropdown.Item>
                         ))}
                       </Dropdown.Menu>
                     </Dropdown>
