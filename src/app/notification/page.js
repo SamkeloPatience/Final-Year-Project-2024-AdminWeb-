@@ -114,7 +114,7 @@ export default function Notification() {
   const handleAssign = async (collectionName, itemId, assignee) => {
     const success = await assignTask(collectionName, itemId, assignee);
     if (success) {
-      router.push(`../history?itemId=${encodeURIComponent(itemId)}`);
+      console.log("Assigned succesfully")
     } else {
       alert("Failed to assign task");
     }

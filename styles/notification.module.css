@@ -3,10 +3,10 @@
   justify-content: space-between; 
   align-items: flex-start; 
   margin: 10px 0; 
-  border: 1px solid #ddd; /* Adds a border to each item */
-  padding: 10px; /* Adds padding inside each item */
-  border-radius: 8px; /* Rounds the corners of each item */
-  background-color: #f9f9f9; /* Sets a background color */
+  border: 1px solid #ddd; 
+  padding: 10px;
+  border-radius: 8px; 
+  background-color: #f9f9f9; 
 }
 
 .description, .location, .reportedBy, .image {
