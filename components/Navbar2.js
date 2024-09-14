@@ -20,12 +20,6 @@ export default function Navbar2() {
         <div className={`col-sm-12 col-md-4 col-lg-6 justify-content-end ${styles.navlink}`}>
           <ul className={`navbar-nav `}>
             <li className="nav-item">
-              <a className="nav-link" href="/">
-                Home
-              </a>
-            </li>
-
-            <li className="nav-item">
               <a className="nav-link" href="visualization">
                 Visulization
               </a>
