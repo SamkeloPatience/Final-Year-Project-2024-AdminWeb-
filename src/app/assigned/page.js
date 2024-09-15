@@ -78,10 +78,10 @@ export default function History() {
                         <br/>
                         {item.assignedTo}
                     </p>
-                    <p className= {`${styles.solved}`}> Solved:
+                    <p className= {`${styles.solved}`}> Status:
                       <br/>
 
-                      {item.solved ? "Yes" : "No"}
+                      {item.solved ? "In Progres" : "No Progress"}
                       </p>
           </div>
         ))}

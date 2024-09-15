@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { collection, getDocs, updateDoc, doc, setDoc, deleteDoc, getDoc } from "firebase/firestore";
@@ -7,7 +7,7 @@ import Navbar2 from "@components/Navbar2";
 import styles from "@styles/notification.module.css";
 import Footer from "@components/Footer";
 import { Dropdown } from "react-bootstrap";
-import Stack from "./stack"; 
+import Stack from "./stack";
 
 async function fetchDataFromFirestore(stack) {
   try {
@@ -19,19 +19,31 @@ async function fetchDataFromFirestore(stack) {
       querySnapshot.forEach((doc) => {
         const docData = { id: doc.id, ...doc.data() };
         stack.push(docData);
-
       });
       data[collectionName] = stack.getStack();
-
     }
     return data;
   } catch (error) {
     console.error("Error fetching data from Firestore:", error);
     return {};
-
   }
-
 }
+
+async function fetchAssignData() {
+  try {
+    const colRef = collection(db, "Assign");
+    const querySnapshot = await getDocs(colRef);
+    const items = [];
+    querySnapshot.forEach((doc) => {
+      items.push({ id: doc.id, ...doc.data() });
+    });
+    return items;
+  } catch (error) {
+    console.error("Error fetching assign data:", error);
+    return [];
+  }
+}
+
 async function assignTask(collectionName, itemId, assignee) {
   try {
     const docRef = doc(db, collectionName, itemId);
@@ -43,8 +55,8 @@ async function assignTask(collectionName, itemId, assignee) {
       // Update the document with the new assignee
       await updateDoc(docRef, { assignedTo: assignee });
 
-      // Move the document to the "History" collection
-      await setDoc(doc(db, "History", itemId), { ...data, solved: true });
+      // Move the document to the "History" collection with the assignedTo field
+      await setDoc(doc(db, "History", itemId), { ...data, assignedTo: assignee, solved: true });
 
       // Delete the document from the original collection
       await deleteDoc(docRef);
@@ -63,11 +75,12 @@ async function assignTask(collectionName, itemId, assignee) {
 
 export default function Notification() {
   const [data, setData] = useState({});
+  const [assignData, setAssignData] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dropdownItems, setDropdownItems] = useState({});
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const router = useRouter(); 
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchData() {
@@ -75,6 +88,10 @@ export default function Notification() {
       try {
         const result = await fetchDataFromFirestore(stack);
         setData(result);
+
+        // Fetch Assign data and store it in state
+        const assignItems = await fetchAssignData();
+        setAssignData(assignItems);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Error fetching data");
@@ -93,28 +110,14 @@ export default function Notification() {
       return;
     }
 
-    try {
-      const colRef = collection(db, "Assign");
-      const querySnapshot = await getDocs(colRef);
-      const items = [];
-
-      querySnapshot.forEach((doc) => {
-        items.push({ id: doc.id, ...doc.data() });
-      });
-
-      setDropdownItems((prevState) => ({ ...prevState, [itemId]: items }));
-      setActiveDropdown(itemId);
-    } catch (error) {
-      console.error("Error fetching dropdown items:", error);
-      setDropdownItems((prevState) => ({ ...prevState, [itemId]: [] }));
-      setActiveDropdown(null);
-    }
+    setDropdownItems((prevState) => ({ ...prevState, [itemId]: assignData }));
+    setActiveDropdown(itemId);
   };
 
   const handleAssign = async (collectionName, itemId, assignee) => {
     const success = await assignTask(collectionName, itemId, assignee);
     if (success) {
-      console.log("Assigned succesfully")
+      console.log("Assigned successfully");
     } else {
       alert("Failed to assign task");
     }
@@ -160,7 +163,7 @@ export default function Notification() {
                     </p>
 
                     <Dropdown
-                      show={activeDropdown === item.id} 
+                      show={activeDropdown === item.id}
                       onToggle={() => handleDropdownToggle(collectionName, item.id)}
                     >
                       <Dropdown.Toggle
@@ -173,11 +176,11 @@ export default function Notification() {
                       <Dropdown.Menu>
                         {(dropdownItems[item.id] || []).map((dropdownItem) => (
                           <Dropdown.Item
-                          key={dropdownItem.id}
-                          onClick={() => handleAssign(collectionName, item.id, dropdownItem.name)}
-                        >
-                          {dropdownItem.name || "Not available"}
-                        </Dropdown.Item>
+                            key={dropdownItem.id}
+                            onClick={() => handleAssign(collectionName, item.id, dropdownItem.name)}
+                          >
+                            {dropdownItem.name || "Not available"}
+                          </Dropdown.Item>
                         ))}
                       </Dropdown.Menu>
                     </Dropdown>

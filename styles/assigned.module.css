@@ -1,0 +1,26 @@
+.container {
+    padding: 20px;
+    background-color: #f0f0f0;
+     
+  }
+  
+  .secondContainer {
+    background-color: whitesmoke;
+    margin-bottom: 15px;
+    padding: 15px; 
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100px;
+    width:1800px ;
+  }
+  
+  .description, .location, .reportedBy, .image,.assignedTo, .status {
+    flex: 1;
+    margin: 0 10px;
+    font-size: 14px;
+  }
+  
+  
