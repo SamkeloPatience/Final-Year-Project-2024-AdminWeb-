@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { collection, getDocs, updateDoc, doc, setDoc, deleteDoc, getDoc } from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig";
-import Navbar2 from "@components/Navbar2";
+import Navbar from "@components/Navbar"
 import styles from "@styles/notification.module.css";
 import Footer from "@components/Footer";
 import { Dropdown } from "react-bootstrap";
@@ -11,7 +11,7 @@ import Stack from "./stack";
 
 async function fetchDataFromFirestore(stack) {
   try {
-    const collections = ["Reports"];
+    const collections = ["ppo_department"];
     const data = {};
     for (const collectionName of collections) {
       const colRef = collection(db, collectionName);
@@ -129,7 +129,7 @@ export default function Notification() {
 
   return (
     <main>
-      <Navbar2 />
+      <Navbar />
       {error && <p>Error: {error}</p>}
       {Object.keys(data).length > 0 ? (
         Object.keys(data).map((collectionName) => (

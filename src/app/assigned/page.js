@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig";
-import Navbar2 from "@components/Navbar2";
+import Navbar from "@components/Navbar";
 import Footer from "@components/Footer";
 import styles from "@styles/History.module.css";
 
@@ -49,7 +49,7 @@ export default function History() {
 
   return (
     <main>
-      <Navbar2 />
+      <Navbar/>
       <div className={`${styles.container}`}>
         {data.map((item) => (
           <div key={item.id} className={`row ${styles.secondContainer}`}>

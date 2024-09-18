@@ -1,15 +1,15 @@
 "user client "
 
 import Footer from "@components/Footer"
-import Navbar2 from "@components/Navbar2"
-import page from "../visualization/page.module.css"
+import Navbar from "@components/Navbar"
+
 
 
 
 export default function Visulization(){
     return(
         <main>
-         <Navbar2/>
+         <Navbar/>
          <h4>hi,</h4>
          <Footer/>
         </main>
