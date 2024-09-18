@@ -10,7 +10,7 @@ import Image from "next/image";
 export default function Navbar() {
   return (
     <main>
-      <nav className={` navbar navbar-expand-sm text-bg-info ${styles.nav} `}>
+      <nav className={` navbar fixed-top navbar-expand-sm text-bg-info ${styles.nav} `}>
         <ul>
           <Image
             src={logo}
@@ -24,7 +24,7 @@ export default function Navbar() {
         <div className={`col-sm-12 col-md-8 col-lg-6 justify-content-end ${styles.navlink}`}>
           <ul className={`navbar-nav  `}>
             <li className="nav-item">
-              <a className="nav-link" href="/">
+              <a className="nav-link" href="dashboard">
               <Image src={house} width={30} height={30} alt="Home"/>
               </a>
             </li>
