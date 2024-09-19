@@ -1,6 +1,7 @@
 .container {
   padding: 20px;
   background-color: #f0f0f0;
+  margin-top: 150px;
    
 }
 
@@ -15,6 +16,8 @@
   align-items: center;
   height: 100px;
   width:1500px ;
+  margin-bottom: 10px;
+
 }
 
 .description, .location, .reportedBy, .image,.assignedTo, .solved {

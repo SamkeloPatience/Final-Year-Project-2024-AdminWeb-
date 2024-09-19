@@ -10,7 +10,7 @@ import Image from "next/image";
 export default function Navbar() {
   return (
     <main>
-      <nav className={` navbar navbar-expand-sm text-bg-info ${styles.nav} `}>
+      <nav className={` col-lg-6 col-xlg-4 navbar navbar-expand-sm text-bg-info ${styles.nav} `}>
         <ul>
           <Image
             src={logo}
@@ -21,7 +21,7 @@ export default function Navbar() {
           />
           <h6 className={`text-left text-dark`}>admin@unizulu</h6>
         </ul>
-        <div className={`col-sm-12 col-md-8 col-xlg-6 justify-content-end ${styles.navlink}`}>
+        <div className={`justify-content-end ${styles.navlink}`}>
           <ul className={`navbar-nav  `}>
             <li className="nav-item">
               <a className="nav-link" href="dashboard">
