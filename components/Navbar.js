@@ -1,6 +1,6 @@
 "use client";
 import styles from "@styles/Navabar.module.css"
-import logo from "@images/logo.jpg";
+import logo from "@images/Login/logo.png";
 import Image from "next/image";
 
 export default function Navbar() {
@@ -10,8 +10,6 @@ export default function Navbar() {
         <ul>
           <Image
             src={logo}
-            width={30}
-            height={20}
             alt="unizulu"
             className={`navbar-brand ${styles.navImg}`}
           />
