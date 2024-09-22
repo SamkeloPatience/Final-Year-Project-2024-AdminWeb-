@@ -11,7 +11,7 @@ import Stack from "./stack";
 
 async function fetchDataFromFirestore(stack) {
   try {
-    const collections = ["ppo_department"];
+    const collections = ["Reports"];
     const data = {};
     for (const collectionName of collections) {
       const colRef = collection(db, collectionName);
@@ -51,14 +51,19 @@ async function assignTask(collectionName, itemId, assignee) {
 
     if (docSnap.exists()) {
       const data = docSnap.data();
+      const timestamp = new Date(); 
 
-      // Update the document with the new assignee
-      await updateDoc(docRef, { assignedTo: assignee });
+      // timestap
+      await updateDoc(docRef, {
+        assignedTo: assignee,
+        assignedAt: timestamp 
+      });
 
-      // Move the document to the "History" collection with the assignedTo field
-      await setDoc(doc(db, "History", itemId), { ...data, assignedTo: assignee, solved: true });
+      // Move the document to the staff collection with the assigned staff and timestamp
+      await setDoc(doc(db, "Staff", itemId), { ...data,  assignedTo: assignee, assignedAt: timestamp 
+      });
 
-      // Delete the document from the original collection
+      // Delete the document from the department collection 
       await deleteDoc(docRef);
 
       return true;
@@ -71,7 +76,6 @@ async function assignTask(collectionName, itemId, assignee) {
     return false;
   }
 }
-
 
 export default function Notification() {
   const [data, setData] = useState({});
@@ -89,7 +93,6 @@ export default function Notification() {
         const result = await fetchDataFromFirestore(stack);
         setData(result);
 
-        // Fetch Assign data and store it in state
         const assignItems = await fetchAssignData();
         setAssignData(assignItems);
       } catch (error) {
@@ -124,7 +127,7 @@ export default function Notification() {
   };
 
   if (loading) {
-    return <p>Loading data...</p>;
+    return <Navbar/>;
   }
 
   return (

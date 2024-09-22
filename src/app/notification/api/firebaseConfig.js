@@ -1,6 +1,7 @@
 
-/*import { initializeApp } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDaaKL3oa6sOiI_2VZ7mTgqepncd472ceA",
@@ -19,13 +20,14 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const timestamp = Timestamp.now();
 const db = getFirestore(app);
 
-export { db };*/
+export { db };
 
 
 
-import { initializeApp } from "firebase/app";
+/*import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -41,4 +43,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-export { db };
+export { db };*/

@@ -17,10 +17,12 @@
     width:1800px ;
   }
   
-  .description, .location, .reportedBy, .image,.assignedTo, .status {
+  .description, .location, .reportedBy, .image,.assignedTo, .Status{
     flex: 1;
     margin: 0 10px;
     font-size: 14px;
   }
-  
+  .assignedAt{
+    margin-top: 50px;
+  }
   

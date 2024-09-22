@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig";
-import Navbar from "@components/Navbar"
+import Navbar from "@components/Navbar";
 import Footer from "@components/Footer";
 import styles from "@styles/History.module.css";
 
@@ -15,12 +15,12 @@ export default function History() {
   useEffect(() => {
     async function fetchDataFromFirestore() {
       try {
-        const collectionName = "History"; 
+        const collectionName = "History";
         const colRef = collection(db, collectionName);
         const querySnapshot = await getDocs(colRef);
-        const documents = querySnapshot.docs.map(doc => ({
+        const documents = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         }));
 
         setData(documents);
@@ -36,7 +36,7 @@ export default function History() {
   }, []);
 
   if (loading) {
-    return <p>Loading data...</p>;
+    return <Navbar/>;
   }
 
   if (error) {
@@ -44,45 +44,52 @@ export default function History() {
   }
 
   if (data.length === 0) {
-    return <p>No data found</p>;
+    return <h1 className={`justify-content-center`}>No Reports has been solved</h1>;
   }
 
   return (
     <main>
-      <Navbar/>
+      <Navbar />
       <div className={`${styles.container}`}>
         {data.map((item) => (
           <div key={item.id} className={`row ${styles.secondContainer}`}>
             <p className={`${styles.description}`}>
-                      Description
-                      <br />
-                      {item.Description || "N/A"} <br />
-                    </p>
-                    <p className={`${styles.location}`}>
-                      Location
-                      <br />
-                      {item.Location || "N/A"}
-                    </p>
-                    <p className={`${styles.reportedBy}`}>
-                      ReportedBy
-                      <br />
-                      {item.ReportedBy || "N/A"}
-                    </p>
-                    <p className={`${styles.image}`}>
-                      Image
-                      <br />
-                      {item.Image || "N/A"}
-                    </p>
-                    <p className={`${styles.assignedTo}`}>
-                        AssignedTo
-                        <br/>
-                        {item.assignedTo}
-                    </p>
-                    <p className= {`${styles.solved}`}> Solved:
-                      <br/>
-
-                      {item.solved ? "Yes" : "No"}
-                      </p>
+              Description
+              <br />
+              {item.Description || "N/A"} <br />
+            </p>
+            <p className={`${styles.location}`}>
+              Location
+              <br />
+              {item.Location || "N/A"}
+            </p>
+            <p className={`${styles.reportedBy}`}>
+              ReportedBy
+              <br />
+              {item.ReportedBy || "N/A"}
+            </p>
+            <p className={`${styles.image}`}>
+              Image
+              <br />
+              {item.Image || "N/A"}
+            </p>
+            <p className={`${styles.assignedTo}`}>
+              AssignedTo
+              <br />
+              {item.assignedTo}
+            </p>
+            <p className={`${styles.solved}`}>
+              {" "}
+              Solved:
+              <br />
+              {item.solved ? "Yes" : "No"}
+              <span className={`${styles.assignedAt}`}>
+                <br />
+                {item.assignedAt
+                  ? new Date(item.assignedAt.seconds * 1000).toLocaleString()
+                  : "N/A"}
+              </span>
+            </p>
           </div>
         ))}
       </div>

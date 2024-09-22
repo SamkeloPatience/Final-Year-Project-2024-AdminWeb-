@@ -1,10 +1,6 @@
 "use client";
 import styles from "@styles/Navabar.module.css"
 import logo from "@images/logo.jpg";
-import bell from '@images/bell.svg'
-import history from "@images/history.svg"
-import graph from "@images/graph-up.svg"
-import house from "@images/house.svg"
 import Image from "next/image";
 
 export default function Navbar() {
@@ -25,24 +21,13 @@ export default function Navbar() {
           <ul className={`navbar-nav  `}>
             <li className="nav-item">
               <a className="nav-link" href="dashboard">
-              <Image src={house} width={30} height={30} alt="Home"/>
+              Home
               </a>
             </li>
 
             <li className="nav-item">
               <a className="nav-link" href="notification">
-                <Image src={bell} width={30} height={30} alt="notification"/>
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="history">
-                <Image src={history} width={30} height={30} alt="history"/>
-              </a>
-            </li>
-
-            <li className="nav-item">
-              <a className="nav-link" href="visualization">
-                <Image src={graph} width={30} height={30} alt="visualization"/>
+               Notification
               </a>
             </li>
             <li className="nav-item">
@@ -50,6 +35,18 @@ export default function Navbar() {
                 Assignment
               </a>
             </li>
+            <li className="nav-item">
+              <a className="nav-link" href="history">
+                History
+              </a>
+            </li>
+
+            <li className="nav-item">
+              <a className="nav-link" href="visualization">
+                Visualization
+              </a>
+            </li>
+            
             <li className="nav-item">
               <a className="nav-link" href="aboutUs">
                 AboutUs
