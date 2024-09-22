@@ -1,52 +1,78 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { collection, query, getDocs } from "firebase/firestore"; 
+import { collection, getDocs } from "firebase/firestore"; 
 import { db } from "../app/notification/api/firebaseConfig"; 
 import styles from "@styles/login.module.css"; 
-import bcrypt from 'bcryptjs'; // Ensure you have bcryptjs installed
+
+const testFirestoreConnection = async () => {
+  try {
+    const loginCollection = collection(db, "Users");
+    const snapshot = await getDocs(loginCollection);
+    console.log("Number of documents:", snapshot.size);  
+    snapshot.forEach((doc) => {
+      console.log(doc.id, "=>", doc.data());  
+    });
+  } catch (err) {
+    console.error("Error fetching documents:", err);
+  }
+};
+
+testFirestoreConnection();
 
 export default function Login() {
-  const router = useRouter();
-  const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setErrorMessage(""); // Clear previous error messages
-    setLoading(true); // Disable button and show loading state
-  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
     try {
-      const q = query(collection(db, "Login")); // Adjust collection name as needed
-      const querySnapshot = await getDocs(q);
-      
-      let userFound = false;
+      console.log("Starting login process...");
 
-      querySnapshot.docs.forEach((doc) => {
-        const userDoc = doc.data();
-        
-        if (userDoc.username === username) {
-          userFound = true; // User found
+      const loginCollection = collection(db, "Users");
+      const querySnapshot = await getDocs(loginCollection);
+      console.log("Documents fetched from Firestore:", querySnapshot.size);
 
-          // Use bcrypt to compare the hashed password
-          if (bcrypt.compareSync(password, userDoc.password)) {
-            router.push("/dashboard"); // Redirect on success
+      let loginSuccess = false;
+
+      // Iterating through the documents to check for matching credentials
+      for (const doc of querySnapshot.docs) {
+        const data = doc.data();
+        console.log("Checking document:", data);
+
+        // Comparing username and password 
+        if (data.username === username && data.password === password) {
+          console.log("Login successful for user:", username);
+          loginSuccess = true;
+
+          // Checking if the department is PPO or PSD 
+          if (data.department === "PPO") {
+            router.push('/ppo'); 
+          } else if (data.department === "PSD") {
+            router.push('/psd'); 
           } else {
-            setErrorMessage("Incorrect password. Please try again.");
+            setError("Unauthorized role.");
+            console.log("Unauthorized role.");
           }
+          break; 
         }
-      });
-
-      if (!userFound) {
-        setErrorMessage("Incorrect username or password.");
       }
-    } catch (error) {
-      console.error("Error logging in: ", error);
-      setErrorMessage("An error occurred. Please try again later.");
+
+      if (!loginSuccess) {
+        setError("Invalid username or password.");
+        console.log("Invalid username or password.");
+      }
+    } catch (err) {
+      console.error("Error logging in:", err);
+      setError("An error occurred. Please try again.");
     } finally {
-      setLoading(false); // Re-enable button after operation
+      setLoading(false);
     }
   };
 
@@ -96,14 +122,14 @@ export default function Login() {
                   required
                 />
               </div>
-              {errorMessage && (
-                <div className="alert alert-danger">{errorMessage}</div>
+              {error && (
+                <div className="alert alert-danger">{error}</div>
               )}
               <div className="pt-1 mb-4">
                 <button
                   className="btn btn-dark btn-lg btn-block"
                   type="submit"
-                  disabled={loading} // Disable button when loading
+                  disabled={loading}
                 >
                   {loading ? "Logging in..." : "Login"}
                 </button>

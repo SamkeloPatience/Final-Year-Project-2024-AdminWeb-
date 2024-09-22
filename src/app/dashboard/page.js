@@ -8,9 +8,6 @@ export default function Dashboard() {
   return (
     <main>
       <Navbar />
-      <h2 className={`d-flex justify-content-center ${styles.heading}`}>
-        Welcome to the Physical Planning and Operations Department
-      </h2>
      
     </main>
   );
