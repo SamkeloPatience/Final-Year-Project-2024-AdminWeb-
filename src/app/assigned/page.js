@@ -36,7 +36,7 @@ export default function Assigned() {
   }, []);
 
   if (loading) {
-    return <Navbar/>
+    return <Navbar />;
   }
 
   if (error) {
@@ -64,7 +64,7 @@ export default function Assigned() {
               {item.Location || "N/A"}
             </p>
             <p className={`${styles.reportedBy}`}>
-              ReportedBy
+              Reported By
               <br />
               {item.ReportedBy || "N/A"}
             </p>
@@ -84,12 +84,15 @@ export default function Assigned() {
                   : "N/A"}
               </span>
             </p>
-
+            <p className={`${styles.department}`}>
+              Department
+              <br />
+              {item.department || "N/A"} {/* Display the department */}
+            </p>
             <p className={`${styles.solved}`}>
-              {" "}
               Status:
               <br />
-              {item.solved ? "In Progres" : "No Progress"}
+              {item.solved ? "In Progress" : "No Progress"}
             </p>
           </div>
         ))}

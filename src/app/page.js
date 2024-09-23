@@ -1,24 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { collection, getDocs } from "firebase/firestore"; 
+import { collection, query, where, getDocs } from "firebase/firestore"; 
 import { db } from "../app/notification/api/firebaseConfig"; 
-import styles from "@styles/login.module.css"; 
-
-const testFirestoreConnection = async () => {
-  try {
-    const loginCollection = collection(db, "Users");
-    const snapshot = await getDocs(loginCollection);
-    console.log("Number of documents:", snapshot.size);  
-    snapshot.forEach((doc) => {
-      console.log(doc.id, "=>", doc.data());  
-    });
-  } catch (err) {
-    console.error("Error fetching documents:", err);
-  }
-};
-
-testFirestoreConnection();
+import styles from "@styles/login.module.css";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -35,38 +20,33 @@ export default function Login() {
     try {
       console.log("Starting login process...");
 
+      // Query Firestore for the user with matching username and password
       const loginCollection = collection(db, "Users");
-      const querySnapshot = await getDocs(loginCollection);
+      const q = query(
+        loginCollection,
+        where("username", "==", username),
+        where("password", "==", password)
+      );
+      const querySnapshot = await getDocs(q);
       console.log("Documents fetched from Firestore:", querySnapshot.size);
 
-      let loginSuccess = false;
-
-      // Iterating through the documents to check for matching credentials
-      for (const doc of querySnapshot.docs) {
-        const data = doc.data();
-        console.log("Checking document:", data);
-
-        // Comparing username and password 
-        if (data.username === username && data.password === password) {
-          console.log("Login successful for user:", username);
-          loginSuccess = true;
-
-          // Checking if the department is PPO or PSD 
-          if (data.department === "PPO") {
-            router.push('/ppo'); 
-          } else if (data.department === "PSD") {
-            router.push('/psd'); 
-          } else {
-            setError("Unauthorized role.");
-            console.log("Unauthorized role.");
-          }
-          break; 
-        }
-      }
-
-      if (!loginSuccess) {
+      if (querySnapshot.empty) {
+        // No matching user found
         setError("Invalid username or password.");
         console.log("Invalid username or password.");
+      } else {
+        // We expect only one user to match the credentials
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data();
+
+        // Checking the user's department to route accordingly
+        if (userData.department === "PPO") {
+          localStorage.setItem('userDepartment', 'PPO');
+          router.push('/ppo'); 
+        } else if (userData.department === "PSD") {
+          localStorage.setItem('userDepartment', 'PSD');
+          router.push('/psd'); 
+        }
       }
     } catch (err) {
       console.error("Error logging in:", err);
