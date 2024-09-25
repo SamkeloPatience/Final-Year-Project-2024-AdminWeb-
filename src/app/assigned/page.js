@@ -5,7 +5,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig";
 import Navbar from "@components/Navbar";
 import Footer from "@components/Footer";
-import styles from "@styles/History.module.css";
+import styles from "@styles/assigned.module.css";
 
 export default function Assigned() {
   const [data, setData] = useState([]);
@@ -79,21 +79,17 @@ export default function Assigned() {
               {item.assignedTo || "N/A"}
               <br />
               <span className={`${styles.assignedAt}`}>
-                {item.assignedAt
-                  ? new Date(item.assignedAt.seconds * 1000).toLocaleString()
+                {item.assignAt
+                  ? new Date(item.assignAt.seconds * 1000).toLocaleString()
                   : "N/A"}
               </span>
             </p>
-            <p className={`${styles.department}`}>
-              Department
+            <p className={`${styles.status}`}>
+              Status
               <br />
-              {item.department || "N/A"} {/* Display the department */}
+              {item.status || "N/A"}
             </p>
-            <p className={`${styles.solved}`}>
-              Status:
-              <br />
-              {item.solved ? "In Progress" : "No Progress"}
-            </p>
+            
           </div>
         ))}
       </div>

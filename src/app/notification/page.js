@@ -30,22 +30,41 @@ async function fetchDataFromFirestore(stack, userDepartment) {
   }
 }
 
-// Assign a task and move the document to history
-async function assignTask(collectionName, itemId, assignee) {
+async function assignTask(collectionName, itemId, assignee, setData, data) {
   try {
+    console.log(`Assigning task from ${collectionName}, itemId: ${itemId}, to assignee: ${assignee}`);
+
     const docRef = doc(db, collectionName, itemId);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      const data = docSnap.data();
+      const dataDoc = docSnap.data();
       const timestamp = new Date();
 
+      // Updating the document with staff name, status, and timestamp
       await updateDoc(docRef, {
         assignedTo: assignee,
-        assignAt: timestamp
+        assignAt: timestamp,
+        status: "In Progess", 
       });
-      await setDoc(doc(db, "Staff", itemId), { ...data, assignedTo: assignee, assignAt: timestamp });
+
+      // Moving the document to the Staff collection
+      await setDoc(doc(db, "Staff", itemId), {
+        ...dataDoc,
+        assignedTo: assignee,
+        assignAt: timestamp,
+        status: "In Progress", 
+      });
+
+      // Deleting the document from the department reports collection
       await deleteDoc(docRef);
+
+      // Remove the item from the local state
+      setData(prevData => {
+        const updatedCollection = prevData[collectionName].filter(item => item.id !== itemId);
+        return { ...prevData, [collectionName]: updatedCollection };
+      });
+
       return true;
     } else {
       console.error("Document does not exist");
@@ -64,7 +83,6 @@ export default function Notification() {
   const [assignData, setAssignData] = useState([]);
   const [dropdownItems, setDropdownItems] = useState({});
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const router = useRouter();
 
   useEffect(() => {
     async function fetchData() {
@@ -78,15 +96,18 @@ export default function Notification() {
       try {
         const result = await fetchDataFromFirestore(stack, userDepartment);
         setData(result);
-        const assignColRef = collection(db, "Staff");
+
+        const assignColRef = collection(db, "Assign");
         const assignSnapshot = await getDocs(assignColRef);
         const assignItems = [];
-        
+
         assignSnapshot.forEach((doc) => {
+          console.log("Fetched staff document:", doc.data()); 
           assignItems.push({ id: doc.id, ...doc.data() });
         });
-        
+
         setAssignData(assignItems);
+        console.log("Assign Data:", assignItems); 
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Error fetching data");
@@ -109,10 +130,9 @@ export default function Notification() {
   };
 
   const handleAssign = async (collectionName, itemId, assignee) => {
-    const success = await assignTask(collectionName, itemId, assignee);
+    const success = await assignTask(collectionName, itemId, assignee, setData, data);
     if (success) {
       alert(`Report assigned to ${assignee}`);
-      router.refresh();
     } else {
       alert("Failed to assign task");
     }
@@ -134,23 +154,30 @@ export default function Notification() {
                 data[collectionName].map((item) => (
                   <div key={item.id} className={`${styles.items}`}>
                     <p className={`${styles.description}`}>
-                      Description: {item.Description || "N/A"}
+                      Description: 
+                      <br/>
+                      {item.Description || "N/A"}
                     </p>
                     <p className={`${styles.location}`}>
-                      Location: {item.Location || "N/A"}
+                      Location: 
+                      <br/>
+                      {item.Location || "N/A"}
                     </p>
                     <p className={`${styles.reportedBy}`}>
-                      Reported By: {item.ReportedBy || "N/A"}
+                      Reported By: 
+                      <br/>
+                      {item.ReportedBy || "N/A"}
                     </p>
                     <p className={styles.image}>
-                      Image: {item.Image || "N/A"}
+                      Image:
+                      <br/>
+                      {item.Image || "N/A"}
                     </p>
-
                     <Dropdown
                       show={activeDropdown === item.id}
                       onToggle={() => handleDropdownToggle(item.id)}
                     >
-                      <Dropdown.Toggle variant="primary" id={`dropdown-basic-${item.id}`}>
+                      <Dropdown.Toggle variant="primary" id={`dropdown-basic-${item.Assign}`}>
                         Assign
                       </Dropdown.Toggle>
 
@@ -158,9 +185,9 @@ export default function Notification() {
                         {(dropdownItems[item.id] || []).map((dropdownItem) => (
                           <Dropdown.Item
                             key={dropdownItem.id}
-                            onClick={() => handleAssign(collectionName, item.id, dropdownItem["name "]?.trim())}
+                            onClick={() => handleAssign(collectionName, item.id, dropdownItem["name"]?.trim())}
                           >
-                            {dropdownItem["name "]?.trim() || "Not available"}
+                            {dropdownItem["name"]?.trim() || "Not available"}
                           </Dropdown.Item>
                         ))}
                       </Dropdown.Menu>
