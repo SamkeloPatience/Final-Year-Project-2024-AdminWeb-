@@ -8,7 +8,7 @@ class Stack {
     }
   
     pop() {
-      if (this.items.length === 0) return "Underflow";
+      if (this.items.length === 0) return "Overflow";
       return this.items.pop();
     }
   
@@ -21,7 +21,7 @@ class Stack {
     }
   
     getStack() {
-      return [...this.items];  // Return a shallow copy of the stack
+      return [...this.items];  
     }
   }
   

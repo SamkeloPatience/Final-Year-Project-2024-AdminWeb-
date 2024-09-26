@@ -41,22 +41,27 @@ async function assignTask(collectionName, itemId, assignee, setData, data) {
       const dataDoc = docSnap.data();
       const timestamp = new Date();
 
-      // Updating the document with staff name, status, and timestamp
+      // Updating the document in the original collection with staff name, status, and timestamp
       await updateDoc(docRef, {
         assignedTo: assignee,
         assignAt: timestamp,
-        status: "In Progess", 
+        status: "In Progress",
       });
 
-      // Moving the document to the Staff collection
       await setDoc(doc(db, "Staff", itemId), {
         ...dataDoc,
         assignedTo: assignee,
         assignAt: timestamp,
-        status: "In Progress", 
+        status: "In Progress",
       });
 
-      // Deleting the document from the department reports collection
+      await setDoc(doc(db, "Tempo", itemId), {
+        ...dataDoc,
+        assignedTo: assignee,
+        assignAt: timestamp,
+        status: "In Progress",
+      });
+
       await deleteDoc(docRef);
 
       // Remove the item from the local state
@@ -75,6 +80,7 @@ async function assignTask(collectionName, itemId, assignee, setData, data) {
     return false;
   }
 }
+
 
 export default function Notification() {
   const [data, setData] = useState({});
