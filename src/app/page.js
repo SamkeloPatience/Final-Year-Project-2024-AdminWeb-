@@ -31,15 +31,15 @@ export default function Login() {
       console.log("Documents fetched from Firestore:", querySnapshot.size);
 
       if (querySnapshot.empty) {
-        // No matching user found
+        // If user not found
         setError("Invalid username or password.");
         console.log("Invalid username or password.");
       } else {
-        // We expect only one user to match the credentials
+        // One user to match the credentials
         const userDoc = querySnapshot.docs[0];
         const userData = userDoc.data();
 
-        // Checking the user's department to route accordingly
+        // Checking the user's department to route 
         if (userData.department === "PPO") {
           localStorage.setItem('userDepartment', 'PPO');
           router.push('/ppo'); 

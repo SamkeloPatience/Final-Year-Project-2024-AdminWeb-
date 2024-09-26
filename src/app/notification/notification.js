@@ -1,4 +1,4 @@
-"use client"
+/*"use client"
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -40,4 +40,4 @@ function MoveNotification() {
   );
 }
 
-ReactDOM.render(<MoveNotification />, document.getElementById('root'));
+ReactDOM.render(<MoveNotification />, document.getElementById('root'));*/

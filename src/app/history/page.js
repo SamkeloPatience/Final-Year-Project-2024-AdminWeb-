@@ -15,7 +15,7 @@ export default function History() {
   useEffect(() => {
     async function fetchDataFromFirestore() {
       try {
-        const collectionName = "History";
+        const collectionName = "ppo_Reports";
         const colRef = collection(db, collectionName);
         const querySnapshot = await getDocs(colRef);
         const documents = querySnapshot.docs.map((doc) => ({
