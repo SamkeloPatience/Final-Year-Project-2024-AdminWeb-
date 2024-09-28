@@ -5,6 +5,22 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../app/notification/api/firebaseConfig"; 
 import styles from "@styles/login.module.css";
 
+const testFirestoreConnection = async () => {
+  try {
+    const loginCollection = collection(db, "Users");
+    const snapshot = await getDocs(loginCollection);
+    console.log("Number of documents:", snapshot.size);  // Should print the number of documents in 'Login'
+    snapshot.forEach((doc) => {
+      console.log(doc.id, "=>", doc.data());  // Print each document's ID and data
+    });
+  } catch (err) {
+    console.error("Error fetching documents:", err);
+  }
+};
+
+testFirestoreConnection();
+
+
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
