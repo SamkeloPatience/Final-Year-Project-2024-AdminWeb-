@@ -9,13 +9,14 @@ import { Timestamp } from "firebase/firestore";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyD0T6dajqnm3kbJqkOXpBVynPh6GtUbGKE",
-  authDomain: "reportme-ec68c.firebaseapp.com",
-  projectId: "reportme-ec68c",
-  storageBucket: "reportme-ec68c.appspot.com",
-  messagingSenderId: "721027071398",
-  appId: "1:721027071398:web:72d1193ea34168d5726367",
-  measurementId: "G-TE8NL1XZKM"
+  apiKey: "AIzaSyDaaKL3oa6sOiI_2VZ7mTgqepncd472ceA",
+  authDomain: "reportme-2a05c.firebaseapp.com",
+  databaseURL: "https://reportme-2a05c-default-rtdb.firebaseio.com",
+  projectId: "reportme-2a05c",
+  storageBucket: "reportme-2a05c.appspot.com",
+  messagingSenderId: "698644646765",
+  appId: "1:698644646765:web:bb1406bf288a06f5986864",
+  measurementId: "G-CKP2Q6DY67"
 };
 
 // Initialize Firebase
