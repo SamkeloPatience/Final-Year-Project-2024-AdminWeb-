@@ -12,7 +12,7 @@ import { Dropdown } from "react-bootstrap";
 // Fetching report based on admin's department
 async function fetchDataFromFirestore(stack, userDepartment) {
   try {
-    const collectionName = userDepartment === "PPO" ? "ppo_Reports" : "psd_Reports";
+    const collectionName = userDepartment === "PPO" ? "ppo_department" : "psd_Reports";
     const colRef = collection(db, collectionName);
     const querySnapshot = await getDocs(colRef);
 
@@ -183,6 +183,7 @@ export default function Notification() {
                       Reported By:
                       <br />
                       {item.ReportedBy || "N/A"}
+                      
                     </p>
                     <p className={styles.image}>
                       Image:
