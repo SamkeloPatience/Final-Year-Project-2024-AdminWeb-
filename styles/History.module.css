@@ -20,7 +20,7 @@
 
 }
 
-.description, .location, .reportedBy, .image,.assignedTo, .solved {
+.description, .location, .reportedBy, .image,.assignedTo, .status {
   flex: 1;
   margin: 0 10px;
   font-size: 14px;

@@ -15,7 +15,7 @@ export default function History() {
   useEffect(() => {
     async function fetchDataFromFirestore() {
       try {
-        const collectionName = "History";
+        const collectionName = "Tempo";
         const colRef = collection(db, collectionName);
         const querySnapshot = await getDocs(colRef);
         const documents = querySnapshot.docs.map((doc) => ({
@@ -78,15 +78,14 @@ export default function History() {
               <br />
               {item.assignedTo}
             </p>
-            <p className={`${styles.solved}`}>
-              {" "}
-              Solved:
+            <p className={`${styles.status}`}>
+              Status
               <br />
-              {item.solved ? "Yes" : "No"}
+              {item.status || "N/A"}
               <span className={`${styles.assignedAt}`}>
                 <br />
-                {item.assignedAt
-                  ? new Date(item.assignedAt.seconds * 1000).toLocaleString()
+                {item.updatedAt
+                  ? new Date(item.updatedAt.seconds * 1000).toLocaleString()
                   : "N/A"}
               </span>
             </p>

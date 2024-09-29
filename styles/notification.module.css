@@ -9,7 +9,7 @@
   background-color: #f9f9f9; 
 }
 
-.description, .location, .reportedBy, .image, .assign {
+.description, .location, .reportedBy, .image, .assign, .Time {
   flex: 1; 
   margin: 0 10px; 
 }
@@ -22,4 +22,9 @@
 .row {
   text-align: center;
   margin-bottom: 20px; 
+}
+.list{
+  list-style-type: none;  
+  padding-left: 0;       
+  margin-left: 0; 
 }

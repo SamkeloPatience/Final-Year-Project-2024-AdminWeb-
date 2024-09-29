@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { collection, getDocs, updateDoc, doc, setDoc, deleteDoc, getDoc } from "firebase/firestore";
+import {collection, getDocs, doc, setDoc, deleteDoc, getDoc, } from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig";
 import Navbar from "@components/Navbar";
 import Footer from "@components/Footer";
@@ -8,14 +8,13 @@ import styles from "@styles/notification.module.css";
 import Stack from "./stack";
 import { Dropdown } from "react-bootstrap";
 
-
 // Fetching report based on admin's department
 async function fetchDataFromFirestore(stack, userDepartment) {
   try {
-    const collectionName = userDepartment === "PPO" ? "ppo_department" : "psd_Reports";
+    const collectionName =
+      userDepartment === "PPO" ? "ppo_department" : "psd_department";
     const colRef = collection(db, collectionName);
     const querySnapshot = await getDocs(colRef);
-
     querySnapshot.forEach((doc) => {
       const docData = { id: doc.id, ...doc.data() };
       stack.push(docData);
@@ -29,47 +28,77 @@ async function fetchDataFromFirestore(stack, userDepartment) {
 }
 
 async function fetchStaffByDepartmentAndRole(userDepartment, role) {
+  console.log(
+    "Fetching staff for department:",
+    userDepartment,
+    "and role:",
+    role
+  );
   const assignColRef = collection(db, "Users");
   const assignSnapshot = await getDocs(assignColRef);
   const assignItems = [];
 
   assignSnapshot.forEach((doc) => {
     const staffData = doc.data();
+    console.log("Staff data:", staffData);
     if (staffData.department === userDepartment && staffData.role === role) {
       assignItems.push({ id: doc.id, ...staffData });
     }
   });
 
+  console.log("Fetched staff items:", assignItems);
   return assignItems;
 }
 
 async function assignTask(collectionName, itemId, assignee, setData, data) {
   try {
-    console.log(`Assigning task from ${collectionName}, itemId: ${itemId}, to assignee: ${assignee}`);
+    console.log(
+      `Assigning task from ${collectionName}, itemId: ${itemId}, to assignee: ${assignee}`
+    );
+
     const docRef = doc(db, collectionName, itemId);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
       const dataDoc = docSnap.data();
       const timestamp = new Date();
-      // Updating collections 
-      await updateDoc(docRef, {
-        assignedTo: assignee,
-        assignAt: timestamp,
-        status: "In Progress",
-      });
 
-      await setDoc(doc(db, "Staff", itemId), {
+      // Getting the user's department from local storage
+      const userDepartment = localStorage.getItem("userDepartment");
+
+      // Storing in either PPO_Staff or PSD_Staff based on the department
+      if (userDepartment === "PPO") {
+        await setDoc(doc(db, "PPO_Staff", itemId), {
+          ...dataDoc,
+          assignedTo: assignee,
+          assignAt: timestamp,
+          status: "In Progress",
+        });
+      } else {
+        await setDoc(doc(db, "PSD_Staff", itemId), {
+          ...dataDoc,
+          assignedTo: assignee,
+          assignAt: timestamp,
+          status: "In Progress",
+        });
+      }
+
+      // Write to TempCollection
+      await setDoc(doc(db, "Tempo", itemId), {
         ...dataDoc,
         assignedTo: assignee,
         assignAt: timestamp,
         status: "In Progress",
       });
-    
+
+      // Deleting the original document
       await deleteDoc(docRef);
-    // Removing Report from local state
+
+      // Removing Report from local state
       setData((prevData) => {
-        const updatedCollection = prevData[collectionName].filter((item) => item.id !== itemId);
+        const updatedCollection = prevData[collectionName].filter(
+          (item) => item.id !== itemId
+        );
         return { ...prevData, [collectionName]: updatedCollection };
       });
 
@@ -83,6 +112,7 @@ async function assignTask(collectionName, itemId, assignee, setData, data) {
     return false;
   }
 }
+
 
 export default function Notification() {
   const [data, setData] = useState({});
@@ -116,30 +146,45 @@ export default function Notification() {
 
   const handleDropdownToggle = async (itemId, collectionName) => {
     console.log("Toggling dropdown for itemId:", itemId);
-  
+
     if (activeDropdown === itemId) {
       setActiveDropdown(null);
       setDropdownItems((prevState) => ({ ...prevState, [itemId]: [] }));
     } else {
-      const item = data[collectionName].find((collection) => collection.id === itemId);
-  
+      const item = data[collectionName].find(
+        (collection) => collection.id === itemId
+      );
+
       if (item) {
-        const description = item.Description ? item.Description.toLowerCase() : "";
+        const description =
+          item.Description && item.Description.length > 0
+            ? item.Description[0].toLowerCase()
+            : "";
+        console.log("Description found:", description);
+
         let role = null;
-  
-        // Matching roles based on the description
+
+        // Matching roles based on the first description element
         if (description.includes("electricity")) {
           role = "Electrician";
         } else if (description.includes("plumbing")) {
           role = "Plumber";
         } else if (description.includes("infrastructure")) {
           role = "Technician";
-        } else if (description.includes("safety")) {
+        } else if (
+          ["safety", "locked", "destructive noise", "property vandalism"].some(
+            (keyword) => description.includes(keyword.toLowerCase()) 
+          )
+        ) {
           role = "Security";
         }
-  
+
         if (role) {
-          const staff = await fetchStaffByDepartmentAndRole(localStorage.getItem("userDepartment"), role);
+          console.log("Role matched:", role);
+          const staff = await fetchStaffByDepartmentAndRole(
+            localStorage.getItem("userDepartment"),
+            role
+          );
           console.log("Staff fetched:", staff);
           setDropdownItems((prevState) => ({
             ...prevState,
@@ -154,6 +199,7 @@ export default function Notification() {
       }
     }
   };
+
   if (loading) {
     return <p>Loading data...</p>;
   }
@@ -172,18 +218,51 @@ export default function Notification() {
                     <p className={`${styles.description}`}>
                       Description:
                       <br />
-                      {item.Description || "N/A"}
+                      {item.Description?.length ? (
+                        <ul className={`${styles.list}`}>
+                          {item.Description.map((desc, i) => (
+                            <li key={i}>{`${desc}`}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        "N/A"
+                      )}
                     </p>
                     <p className={`${styles.location}`}>
                       Location:
                       <br />
-                      {item.Location || "N/A"}
+                      {item.Location && item.Location.length === 3 ? (
+                        <ul className={`${styles.list}`}>
+                          <li>{`${item.Location[0]}`}</li>
+                          <li>{`Block: ${item.Location[1]}`}</li>
+                          <li>{`Room: ${item.Location[2]}`}</li>
+                        </ul>
+                      ) : (
+                        "N/A"
+                      )}
                     </p>
                     <p className={`${styles.reportedBy}`}>
                       Reported By:
                       <br />
-                      {item.ReportedBy || "N/A"}
-                      
+                      {Array.isArray(item.ReportedBy) &&
+                      item.ReportedBy.length ? (
+                        <ul className={`${styles.list}`}>
+                          {item.ReportedBy.map((desc, i) => (
+                            <li key={i}>{`${desc}`}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        "N/A"
+                      )}
+                    </p>
+                    <p className={`${styles.Time}`}>
+                      ReportedAt
+                      <br />
+                      {item.TimeStamp
+                        ? new Date(
+                            item.TimeStamp.seconds * 1000
+                          ).toLocaleString()
+                        : "N/A"}
                     </p>
                     <p className={styles.image}>
                       Image:
@@ -194,7 +273,9 @@ export default function Notification() {
                       <Dropdown.Toggle
                         variant="primary"
                         id={`dropdown-basic-${item.id}`}
-                        onClick={() => handleDropdownToggle(item.id, collectionName)}
+                        onClick={() =>
+                          handleDropdownToggle(item.id, collectionName)
+                        }
                       >
                         Assign
                       </Dropdown.Toggle>
@@ -218,7 +299,9 @@ export default function Notification() {
                             </Dropdown.Item>
                           ))
                         ) : (
-                          <Dropdown.Item disabled>No staff available</Dropdown.Item>
+                          <Dropdown.Item disabled>
+                            No staff available
+                          </Dropdown.Item>
                         )}
                       </Dropdown.Menu>
                     </Dropdown>

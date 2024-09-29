@@ -15,7 +15,14 @@ export default function Assigned() {
   useEffect(() => {
     async function fetchDataFromFirestore() {
       try {
-        const collectionName = "Staff";
+        // Retrieve the user's department from local storage
+        const userDepartment = localStorage.getItem("userDepartment");
+
+        // Determine the collection name based on the user's department
+        const collectionName =
+          userDepartment === "PPO" ? "PPO_Staff" : "PSD_Staff";
+
+        // Fetch data from the appropriate collection
         const colRef = collection(db, collectionName);
         const querySnapshot = await getDocs(colRef);
         const documents = querySnapshot.docs.map((doc) => ({
@@ -54,24 +61,43 @@ export default function Assigned() {
         {data.map((item) => (
           <div key={item.id} className={`row ${styles.secondContainer}`}>
             <p className={`${styles.description}`}>
-              Description
+              Description:
               <br />
-              {item.Description || "N/A"} <br />
+              {item.Description?.length ? (
+                <ul className={`${styles.list}`}>
+                  {item.Description.map((desc, i) => (
+                    <li key={i}>{`${desc}`}</li>
+                  ))}
+                </ul>
+              ) : (
+                "N/A"
+              )}
             </p>
             <p className={`${styles.location}`}>
-              Location
+              Location:
               <br />
-              {item.Location || "N/A"}
+              {item.Location && item.Location.length === 3 ? (
+                <ul className={`${styles.list}`}>
+                  <li>{`${item.Location[0]}`}</li>
+                  <li>{`Block: ${item.Location[1]}`}</li>
+                  <li>{`Room: ${item.Location[2]}`}</li>
+                </ul>
+              ) : (
+                "N/A"
+              )}
             </p>
             <p className={`${styles.reportedBy}`}>
-              Reported By
+              Reported By:
               <br />
-              {item.ReportedBy || "N/A"}
-            </p>
-            <p className={`${styles.image}`}>
-              Image
-              <br />
-              {item.Image || "N/A"}
+              {Array.isArray(item.ReportedBy) && item.ReportedBy.length ? (
+                <ul className={`${styles.list}`}>
+                  {item.ReportedBy.map((desc, i) => (
+                    <li key={i}>{`${desc}`}</li>
+                  ))}
+                </ul>
+              ) : (
+                "N/A"
+              )}
             </p>
             <p className={`${styles.assignedTo}`}>
               Assigned To
@@ -89,7 +115,6 @@ export default function Assigned() {
               <br />
               {item.status || "N/A"}
             </p>
-            
           </div>
         ))}
       </div>
