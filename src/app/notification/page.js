@@ -83,7 +83,7 @@ async function assignTask(collectionName, itemId, assignee, setData, data) {
         });
       }
 
-      // Write to TempCollection
+      // Write to Tempo Collection
       await setDoc(doc(db, "Tempo", itemId), {
         ...dataDoc,
         assignedTo: assignee,

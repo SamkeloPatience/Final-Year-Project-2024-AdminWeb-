@@ -1,7 +1,6 @@
 .container {
   padding: 20px;
-  background-color: #f0f0f0;
-  margin-top: 150px;
+  margin-top: 130px;
    
 }
 
@@ -14,7 +13,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 100px;
+  height: fit-content;
   width:1500px ;
   margin-bottom: 10px;
 
