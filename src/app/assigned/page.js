@@ -15,10 +15,7 @@ export default function Assigned() {
   useEffect(() => {
     async function fetchDataFromFirestore() {
       try {
-        // Retrieve the user's department from local storage
         const userDepartment = localStorage.getItem("userDepartment");
-
-        // Determine the collection name based on the user's department
         const collectionName =
           userDepartment === "PPO" ? "PPO_Staff" : "PSD_Staff";
 
@@ -51,7 +48,7 @@ export default function Assigned() {
   }
 
   if (data.length === 0) {
-    return <p>No data found</p>;
+    return <h1 className={`justify-content-center`}>No Reports has been solved</h1>;
   }
 
   return (

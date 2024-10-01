@@ -15,7 +15,10 @@ export default function History() {
   useEffect(() => {
     async function fetchDataFromFirestore() {
       try {
-        const collectionName = "Tempo";
+        const userDepartment = localStorage.getItem("userDepartment");
+        const collectionName = userDepartment === "PPO" ? "PPO_History" : "PSD_History";
+
+        // Fetching data from the appropriate history collection
         const colRef = collection(db, collectionName);
         const querySnapshot = await getDocs(colRef);
         const documents = querySnapshot.docs.map((doc) => ({
@@ -36,7 +39,7 @@ export default function History() {
   }, []);
 
   if (loading) {
-    return <Navbar/>;
+    return <Navbar />;
   }
 
   if (error) {
@@ -44,7 +47,7 @@ export default function History() {
   }
 
   if (data.length === 0) {
-    return <h1 className={`justify-content-center`}>No Reports has been solved</h1>;
+    return <h1 className={`justify-content-center`}>No Reports have been solved</h1>;
   }
 
   return (
@@ -54,36 +57,61 @@ export default function History() {
         {data.map((item) => (
           <div key={item.id} className={`row ${styles.secondContainer}`}>
             <p className={`${styles.description}`}>
-              Description
+              Description:
               <br />
-              {item.Description || "N/A"} <br />
+              {item.Description?.length ? (
+                <ul className={`${styles.list}`}>
+                  {item.Description.map((desc, i) => (
+                    <li key={i}>{`${desc}`}</li>
+                  ))}
+                </ul>
+              ) : (
+                "N/A"
+              )}
             </p>
             <p className={`${styles.location}`}>
-              Location
+              Location:
               <br />
-              {item.Location || "N/A"}
+              {item.Location && item.Location.length === 3 ? (
+                <ul className={`${styles.list}`}>
+                  <li>{`${item.Location[0]}`}</li>
+                  <li>{`Block: ${item.Location[1]}`}</li>
+                  <li>{`Room: ${item.Location[2]}`}</li>
+                </ul>
+              ) : (
+                "N/A"
+              )}
             </p>
             <p className={`${styles.reportedBy}`}>
-              ReportedBy
+              ReportedBy:
               <br />
-              {item.ReportedBy || "N/A"}
-            </p>
-            <p className={`${styles.image}`}>
-              Image
-              <br />
-              {item.Image || "N/A"}
+              {Array.isArray(item.ReportedBy) && item.ReportedBy.length ? (
+                <ul className={`${styles.list}`}>
+                  {item.ReportedBy.map((desc, i) => (
+                    <li key={i}>{`${desc}`}</li>
+                  ))}
+                </ul>
+              ) : (
+                "N/A"
+              )}
             </p>
             <p className={`${styles.assignedTo}`}>
-              AssignedTo
+              Assigned To
               <br />
-              {item.assignedTo}
+              {item.assignedTo || "N/A"}
+              <br />
+              <span className={`${styles.assignedTo}`}>
+                {item.updatedAt
+                  ? new Date(item.assignAt.seconds * 1000).toLocaleString()
+                  : "N/A"}
+              </span>
             </p>
             <p className={`${styles.status}`}>
               Status
               <br />
               {item.status || "N/A"}
-              <span className={`${styles.assignedAt}`}>
-                <br />
+              <br />
+              <span className={`${styles.updatedAt}`}>
                 {item.updatedAt
                   ? new Date(item.updatedAt.seconds * 1000).toLocaleString()
                   : "N/A"}

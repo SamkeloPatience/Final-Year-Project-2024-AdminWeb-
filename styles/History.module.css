@@ -19,9 +19,14 @@
 
 }
 
-.description, .location, .reportedBy, .image,.assignedTo, .status {
+.description, .location, .reportedBy, .image,.assignedTo, .status , .updatedAt {
   flex: 1;
   margin: 0 10px;
   font-size: 14px;
+}
+.list{
+  list-style-type: none;  
+  padding-left: 0;       
+  margin-left: 0; 
 }
 
