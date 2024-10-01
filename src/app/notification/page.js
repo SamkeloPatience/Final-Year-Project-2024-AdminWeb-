@@ -1,6 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import {collection, getDocs, doc, setDoc, deleteDoc, getDoc, } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  deleteDoc,
+  getDoc,
+} from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig";
 import Navbar from "@components/Navbar";
 import Footer from "@components/Footer";
@@ -113,7 +120,6 @@ async function assignTask(collectionName, itemId, assignee, setData, data) {
   }
 }
 
-
 export default function Notification() {
   const [data, setData] = useState({});
   const [error, setError] = useState(null);
@@ -173,7 +179,7 @@ export default function Notification() {
           role = "Technician";
         } else if (
           ["safety", "locked", "destructive noise", "property vandalism"].some(
-            (keyword) => description.includes(keyword.toLowerCase()) 
+            (keyword) => description.includes(keyword.toLowerCase())
           )
         ) {
           role = "Security";
@@ -242,18 +248,9 @@ export default function Notification() {
                       )}
                     </p>
                     <p className={`${styles.reportedBy}`}>
-                      Reported By:
+                      ReportedBy
                       <br />
-                      {Array.isArray(item.ReportedBy) &&
-                      item.ReportedBy.length ? (
-                        <ul className={`${styles.list}`}>
-                          {item.ReportedBy.map((desc, i) => (
-                            <li key={i}>{`${desc}`}</li>
-                          ))}
-                        </ul>
-                      ) : (
-                        "N/A"
-                      )}
+                      {item.ReportedBy || "N/A"}
                     </p>
                     <p className={`${styles.Time}`}>
                       ReportedAt

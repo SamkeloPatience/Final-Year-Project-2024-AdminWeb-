@@ -8,7 +8,7 @@ export default function PSD() {
     <main>
       <Dashboard />
       <h2 className={`d-flex justify-content-center ${styles.heading}`}>
-        Welcome to the PROTECTION SERVICES DEPARTMENT Department
+        Welcome to the PROTECTION SERVICES DEPARTMENT 
       </h2>
     </main>
   );
