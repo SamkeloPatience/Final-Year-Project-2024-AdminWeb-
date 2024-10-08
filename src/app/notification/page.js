@@ -171,7 +171,7 @@ export default function Notification() {
         } else if (description.includes("infrastructure")) {
           role = "Technician";
         } else if (
-          ["safety", "locked", "destructive noise", "property vandalism"].some(
+          ["safety", "locked", "destructive noise", "property vandalism", "Illegal trading"].some(
             (keyword) => description.includes(keyword.toLowerCase())
           )
         ) {
@@ -243,7 +243,15 @@ export default function Notification() {
                     <p className={`${styles.reportedBy}`}>
                       ReportedBy
                       <br />
-                      {item.ReportedBy || "N/A"}
+                      {item.ReportedBy && item.ReportedBy.length === 3 ? (
+                        <ul className={`${styles.list}`}>
+                          <li>{`${item.ReportedBy[0]}`}</li>
+                          <li>{`cellPhone: ${item.ReportedBy[1]}`}</li>
+                          <li>{`e-mail: ${item.ReportedBy[2]}`}</li>
+                        </ul>
+                      ) : (
+                        "N/A"
+                      )}
                     </p>
                     <p className={`${styles.Time}`}>
                       ReportedAt

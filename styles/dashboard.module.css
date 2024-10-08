@@ -1,4 +1,13 @@
 .heading{
-    margin-top: 500px;
-    
+    margin-top: 30px;  
+}
+.ppo{
+    padding-left: 10px;
+}
+.row{
+   margin-top: 200px;
+   height: fit-content;
+}
+.image{
+   padding-left: 150px;
 }

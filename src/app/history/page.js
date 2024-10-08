@@ -18,7 +18,7 @@ export default function History() {
         const userDepartment = localStorage.getItem("userDepartment");
         const collectionName = userDepartment === "PPO" ? "PPO_History" : "PSD_History";
 
-        // Fetching data from the appropriate history collection
+        /* Fetching data from the appropriate history collection */
         const colRef = collection(db, collectionName);
         const querySnapshot = await getDocs(colRef);
         const documents = querySnapshot.docs.map((doc) => ({
@@ -39,7 +39,12 @@ export default function History() {
   }, []);
 
   if (loading) {
-    return <Navbar />;
+    return (
+      <div>
+        <Navbar />
+        <p>Loading...</p> {/* Added loading message */}
+      </div>
+    );
   }
 
   if (error) {
@@ -47,7 +52,12 @@ export default function History() {
   }
 
   if (data.length === 0) {
-    return <h1 className={`justify-content-center`}>No Reports have been solved</h1>;
+    return (
+      <div>
+        <Navbar />
+        <h1 className={`justify-content-center`}>No Reports have been solved</h1>
+      </div>
+    );
   }
 
   return (
@@ -59,7 +69,7 @@ export default function History() {
             <p className={`${styles.description}`}>
               Description:
               <br />
-              {item.Description?.length ? (
+              {Array.isArray(item.Description) && item.Description.length ? (
                 <ul className={`${styles.list}`}>
                   {item.Description.map((desc, i) => (
                     <li key={i}>{`${desc}`}</li>
@@ -96,26 +106,30 @@ export default function History() {
               )}
             </p>
             <p className={`${styles.assignedTo}`}>
-              Assigned To
+              Assigned To:
               <br />
               {item.assignedTo || "N/A"}
               <br />
-              <span className={`${styles.assignedTo}`}>
-                {item.updatedAt
-                  ? new Date(item.assignAt.seconds * 1000).toLocaleString()
-                  : "N/A"}
-              </span>
+              {item.assignAt ? (
+                <span className={`${styles.assignedTo}`}>
+                  {new Date(item.assignAt.seconds * 1000).toLocaleString()}
+                </span>
+              ) : (
+                "N/A"
+              )}
             </p>
             <p className={`${styles.status}`}>
-              Status
+              Status:
               <br />
               {item.status || "N/A"}
               <br />
-              <span className={`${styles.updatedAt}`}>
-                {item.updatedAt
-                  ? new Date(item.updatedAt.seconds * 1000).toLocaleString()
-                  : "N/A"}
-              </span>
+              {item.updatedAt ? (
+                <span className={`${styles.updatedAt}`}>
+                  {new Date(item.updatedAt.seconds * 1000).toLocaleString()}
+                </span>
+              ) : (
+                "N/A"
+              )}
             </p>
           </div>
         ))}

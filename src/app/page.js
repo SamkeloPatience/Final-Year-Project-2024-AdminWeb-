@@ -28,7 +28,6 @@ export default function Login() {
         where("password", "==", password)
       );
       const querySnapshot = await getDocs(q);
-      console.log("Documents fetched from Firestore:", querySnapshot.size);
 
       if (querySnapshot.empty) {
         // If user not found

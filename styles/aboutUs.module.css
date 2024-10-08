@@ -1,0 +1,173 @@
+/* Keyframes for animations */
+@keyframes fadeInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+@keyframes fadeInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* About Us Title */
+.About {
+    margin-top: 150px;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: left;
+    opacity: 0;
+    animation: fadeInFromTop 1s ease forwards;
+    animation-delay: 0.5s;
+}
+
+/* Container Styling */
+.container {
+    max-width: 900px;
+    margin: 0;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    opacity: 0;
+    animation: fadeInFromBottom 1.2s ease forwards;
+}
+
+/* Paragraph Styling */
+.container p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    opacity: 0;
+    animation: fadeInFromBottom 1.4s ease forwards;
+    animation-delay: 1.2s;
+}
+
+/* Campus Info Section */
+.campus-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    opacity: 0;
+    animation: fadeInFromLeft 1.4s ease forwards;
+}
+
+/* Campus Section */
+.campus {
+    flex: 1;
+    padding: 20px;
+    color: #333;
+    opacity: 0;
+    animation: fadeInFromRight 1.6s ease forwards;
+}
+
+/* Campus Link Styling */
+.campus a {
+    color: blue;
+    text-decoration: none;
+}
+
+.campus a:hover {
+    text-decoration: underline;
+}
+
+/* KwaDlangezwa Campus Background */
+.kwa {
+    background-color: #00ff66;
+    opacity: 0;
+    animation: fadeInFromLeft 1.5s ease forwards;
+}
+
+/* Richards Bay Campus Background */
+.richards {
+    background-color: #ffeb3b;
+    opacity: 0;
+    animation: fadeInFromRight 1.5s ease forwards;
+}
+
+/* Objectives Section */
+.objectives-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+    opacity: 0;
+    animation: fadeInFromBottom 1.6s ease forwards;
+}
+
+/* Objectives Block */
+.objectives {
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-right: 20px;
+    background-color: #f9f9f9;
+    font-size: 16px;
+    opacity: 0;
+    animation: fadeInFromRight 1.7s ease forwards;
+}
+
+/* Interactive Approach Block */
+.interactive-approach {
+    flex: 1;
+    padding: 20px;
+    text-align: left;
+    opacity: 0;
+    animation: fadeInFromLeft 1.8s ease forwards;
+}
+
+/* Campus Image Styling */
+.campus-image {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-top: 20px;
+    opacity: 0;
+    animation: fadeInFromBottom 1.9s ease forwards;
+}
+
+/* Responsive Styles for Mobile View */
+@media (max-width: 768px) {
+    .campus-info,
+    .objectives-section {
+        flex-direction: column;
+        opacity: 0;
+        animation: fadeInFromBottom 1.5s ease forwards;
+    }
+
+    .campus, .objectives, .interactive-approach {
+        margin-bottom: 20px;
+        animation-delay: 1.6s;
+}
+}
