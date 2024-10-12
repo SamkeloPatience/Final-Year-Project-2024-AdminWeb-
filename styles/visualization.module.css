@@ -1,11 +1,92 @@
+
 .container {
-    width: 100%;
-    height: 400px; /* Adjust as necessary */
-    padding: 20px;
-    margin-top: 100px;
-  }
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+
+.sidebar {
+  background-color: #343a40; 
+  width: fit-content;
+  color: white;
+  padding: 20px;
+  height: calc(100vh - 56px); 
+  overflow-y: auto; 
+  transition: width 0.3s ease;
+  margin-top: 100px;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 4px; 
+  transition: background 0.3s;
+}
+
+.sidebar li:hover {
+  background-color: rgba(255, 255, 255, 0.2); 
+}
+
+.active {
+  background-color: rgba(255, 255, 255, 0.3); 
+}
+
+.mainContent {
+  flex-grow: 1; 
+  background-color: #f0f2f5; 
+  border-left: 1px solid #dee2e6; 
+  height: fit-content;
+  margin-top: 100px;
   
-.select {
-    margin-bottom: 20px;
+}
+.row{
+  display: flex;
+  flex-wrap: nowrap; /* Prevent wrapping */
+  justify-content: flex-start; /* Align items to the start */
+  padding: 0; /* Remove padding */
+  margin: 0; /* Remove margin */
+  margin-top: 80px;
+}
+
+.chartContainer {
+  margin-top: 20px;
+  height: 400px; 
+}
+
+.toggleButton {
+  background-color: #007bff; 
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 15px; 
+  transition: background-color 0.3s;
+}
+
+.toggleButton:hover {
+  background-color: #0056b3; 
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: absolute;
+    z-index: 1;
+    height: auto; 
+    width: 250px; 
   }
-  
+
+  .mainContent {
+    padding: 10px;
+  }
+
+.chartContainer {
+    height: auto; 
+}
+}
