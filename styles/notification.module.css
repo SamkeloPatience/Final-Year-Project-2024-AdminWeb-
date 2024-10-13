@@ -9,7 +9,7 @@
   background-color: #f9f9f9; 
 }
 
-.description, .location, .reportedBy, .image, .assign, .Time {
+.description, .location, .reportedBy, .assign, .Time {
   flex: 1; 
   margin: 0 10px; 
 }
@@ -27,4 +27,10 @@
   list-style-type: none;  
   padding-left: 0;       
   margin-left: 0; 
+}
+.image{
+  flex: 1; 
+  margin: 0 10px; 
+  height: 100px;
+
 }

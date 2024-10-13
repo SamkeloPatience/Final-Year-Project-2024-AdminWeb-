@@ -11,17 +11,7 @@ import {Chart, CategoryScale,LinearScale,BarElement,Title,Tooltip,Legend,LineEle
 import styles from "@styles/visualization.module.css";
 
 // Register Chart.js components
-Chart.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-);
+Chart.register( CategoryScale,LinearScale, BarElement, LineElement, PointElement,Title, Tooltip,Legend,ArcElement);
 
 export default function Visualization() {
   const [data, setData] = useState({ labels: [], resolvedCounts: [] });
@@ -34,33 +24,48 @@ export default function Visualization() {
   });
   const [selectedVisualization, setSelectedVisualization] = useState("Report Trends");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-
   useEffect(() => {
     const fetchDataFromFirestore = async () => {
       try {
-        const collectionName = "PPO_History";
+        const collectionName = "PPO_History"; // Adjust the collection name
         const colRef = collection(db, collectionName);
         const querySnapshot = await getDocs(colRef);
         const documents = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-
-        console.log(documents); // Log fetched documents for debugging
-
+  
         const filteredData = documents.filter((item) => {
-          const description = Array.isArray(item.Description) ? item.Description[0].toLowerCase() : "";
+          // Safeguard for missing or null Description
+          let description = "";
+          if (Array.isArray(item.Description) && item.Description.length > 0) {
+            description = item.Description[0]?.toLowerCase();
+          } else if (typeof item.Description === "string") {
+            description = item.Description.toLowerCase();
+          }
+          console.log("Filtered description: ", description); // Debugging log
+  
           const problemType = filters.problemType.toLowerCase();
           const isTypeMatch = filters.problemType === "All" || description.includes(problemType);
-
-          const updatedAt = item.updatedAt ? item.updatedAt.toDate() : null; // Use .toDate() for Firestore Timestamp
+  
+          // Log to check the result of the problemType filter
+          console.log(`Filtering by type - isTypeMatch: ${isTypeMatch}`, description, problemType);
+  
+          // Convert Firestore Timestamp to JavaScript Date object
+          const updatedAt = item.updatedAt ? item.updatedAt.toDate() : null;
+  
+          // Compare the JavaScript Date objects for the time filtering
           const isDateMatch =
-            (!filters.startDate || updatedAt >= new Date(filters.startDate)) &&
-            (!filters.endDate || updatedAt <= new Date(filters.endDate));
-
+            (!filters.startDate || (updatedAt && updatedAt >= new Date(filters.startDate))) &&
+            (!filters.endDate || (updatedAt && updatedAt <= new Date(filters.endDate)));
+  
+          console.log("Filtering by date - isDateMatch:", isDateMatch, updatedAt, filters.startDate, filters.endDate);
+  
           return isTypeMatch && isDateMatch;
         });
-
+  
+        console.log("Filtered Data:", filteredData); // Debugging log
+  
         const groupedData = filteredData.reduce((acc, item) => {
           const desc = Array.isArray(item.Description) ? item.Description[0] : "N/A";
           if (!acc[desc]) {
@@ -71,10 +76,16 @@ export default function Visualization() {
           }
           return acc;
         }, {});
-
+        const sortedData = Object.keys(groupedData)
+              .map((key) => ({
+              description: key,
+              resolved: groupedData[key].resolved,
+  }))
+              .sort((a, b) => b.resolved - a.resolved); 
+  
         const labels = Object.keys(groupedData);
         const resolvedCounts = labels.map((label) => groupedData[label].resolved);
-
+  
         setData({ labels, resolvedCounts });
       } catch (error) {
         console.error("Error fetching data from Firestore:", error);
@@ -83,9 +94,10 @@ export default function Visualization() {
         setLoading(false);
       }
     };
-
+  
     fetchDataFromFirestore();
   }, [filters]);
+  
 
   const chartData = {
     labels: data.labels,

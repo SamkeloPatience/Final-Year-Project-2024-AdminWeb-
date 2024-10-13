@@ -1,6 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  deleteDoc,
+  getDoc,
+} from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig";
 import Navbar from "@components/Navbar";
 import Footer from "@components/Footer";
@@ -119,6 +126,7 @@ export default function Notification() {
   const [loading, setLoading] = useState(true);
   const [dropdownItems, setDropdownItems] = useState({});
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [expandedImage, setExpandedImage] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -171,9 +179,13 @@ export default function Notification() {
         } else if (description.includes("infrastructure")) {
           role = "Technician";
         } else if (
-          ["safety", "locked", "destructive noise", "property vandalism", "Illegal trading"].some(
-            (keyword) => description.includes(keyword.toLowerCase())
-          )
+          [
+            "safety",
+            "locked",
+            "destructive noise",
+            "property vandalism",
+            "Illegal trading",
+          ].some((keyword) => description.includes(keyword.toLowerCase()))
         ) {
           role = "Security";
         }
@@ -198,7 +210,37 @@ export default function Notification() {
       }
     }
   };
+  // Render Image with Clickable Modal
+  const renderImage = (image) => {
+    if (!image) return <p>No image available</p>;
 
+    return (
+      <img
+        src={image}
+        alt="Report image"
+        className={styles.image}
+        onClick={() => setExpandedImage(image)} // Set image to be expanded
+      />
+    );
+  };
+
+  // Modal for expanded image
+  const renderModal = () => {
+    if (!expandedImage) return null;
+
+    return (
+      <div className={styles.modal}>
+        <span className={styles.close} onClick={() => setExpandedImage(null)}>
+          &times;
+        </span>
+        <img
+          className={styles.modalImage}
+          src={expandedImage}
+          alt="Expanded View"
+        />
+      </div>
+    );
+  };
   if (loading) {
     return <p>Loading data...</p>;
   }
@@ -265,7 +307,8 @@ export default function Notification() {
                     <p className={styles.image}>
                       Image:
                       <br />
-                      {item.Image || "N/A"}
+                      {renderImage(item.Image)}
+                      {renderModal()}
                     </p>
                     <Dropdown show={activeDropdown === item.id}>
                       <Dropdown.Toggle
