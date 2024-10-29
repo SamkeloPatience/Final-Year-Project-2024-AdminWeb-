@@ -1,7 +1,7 @@
-"use client"
-import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../notification/api/firebaseConfig'; // Adjust your Firebase config import
+"use client";
+import { useState, useEffect } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../notification/api/firebaseConfig"; // Adjust your Firebase config import
 
 function Filters({ onFilterChange, loggedInUserDepartment }) {
   const [problemType, setProblemType] = useState("All");
@@ -21,7 +21,7 @@ function Filters({ onFilterChange, loggedInUserDepartment }) {
         const uniqueTypes = new Set();
         documents.forEach(item => {
           const desc = Array.isArray(item.Description) ? item.Description[0] : item.Description;
-          uniqueTypes.add(desc); // Use the first element in the Description array or the whole Description
+          uniqueTypes.add(desc);
         });
 
         setProblemTypes(["All", ...Array.from(uniqueTypes)]);
@@ -36,7 +36,6 @@ function Filters({ onFilterChange, loggedInUserDepartment }) {
   }, [loggedInUserDepartment]);
 
   const handleFilterChange = () => {
-    // Validate date range
     if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
       alert("End date cannot be earlier than start date.");
       return;
@@ -88,7 +87,7 @@ function Filters({ onFilterChange, loggedInUserDepartment }) {
           />
 
           <button onClick={handleFilterChange}>Apply Filters</button>
-          <button onClick={handleClearFilters} style={{ marginLeft: '10px' }}>
+          <button onClick={handleClearFilters} style={{ marginLeft: "10px" }}>
             Clear Filters
           </button>
         </>

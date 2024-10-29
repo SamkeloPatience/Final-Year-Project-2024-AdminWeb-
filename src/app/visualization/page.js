@@ -7,13 +7,13 @@ import Navbar from "@components/Navbar";
 import Footer from "@components/Footer";
 import Filters from "../visualization/filter";
 import { Bar, Line, Pie } from "react-chartjs-2";
-import {Chart, CategoryScale,LinearScale,BarElement,Title,Tooltip,Legend,LineElement,PointElement,ArcElement,} from "chart.js";
+import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, LineElement, PointElement, ArcElement } from "chart.js";
 import styles from "@styles/visualization.module.css";
 
 // Register Chart.js components
-Chart.register( CategoryScale,LinearScale, BarElement, LineElement, PointElement,Title, Tooltip,Legend,ArcElement);
+Chart.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement);
 
-export default function Visualization() {
+export default function Visualization({ loggedInUserDepartment }) {
   const [data, setData] = useState({ labels: [], resolvedCounts: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,49 +23,39 @@ export default function Visualization() {
     endDate: "",
   });
   const [selectedVisualization, setSelectedVisualization] = useState("Report Trends");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+
   useEffect(() => {
     const fetchDataFromFirestore = async () => {
       try {
-        const collectionName = "PPO_History"; // Adjust the collection name
+        const collectionName = loggedInUserDepartment === "PPO" ? "PPO_History" : "PSD_History"; // Choose correct collection
         const colRef = collection(db, collectionName);
         const querySnapshot = await getDocs(colRef);
         const documents = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-  
+
+        // Filter the data based on filters
         const filteredData = documents.filter((item) => {
-          // Safeguard for missing or null Description
           let description = "";
           if (Array.isArray(item.Description) && item.Description.length > 0) {
             description = item.Description[0]?.toLowerCase();
           } else if (typeof item.Description === "string") {
             description = item.Description.toLowerCase();
           }
-          console.log("Filtered description: ", description); // Debugging log
-  
+
           const problemType = filters.problemType.toLowerCase();
           const isTypeMatch = filters.problemType === "All" || description.includes(problemType);
-  
-          // Log to check the result of the problemType filter
-          console.log(`Filtering by type - isTypeMatch: ${isTypeMatch}`, description, problemType);
-  
-          // Convert Firestore Timestamp to JavaScript Date object
+
           const updatedAt = item.updatedAt ? item.updatedAt.toDate() : null;
-  
-          // Compare the JavaScript Date objects for the time filtering
           const isDateMatch =
             (!filters.startDate || (updatedAt && updatedAt >= new Date(filters.startDate))) &&
             (!filters.endDate || (updatedAt && updatedAt <= new Date(filters.endDate)));
-  
-          console.log("Filtering by date - isDateMatch:", isDateMatch, updatedAt, filters.startDate, filters.endDate);
-  
+
           return isTypeMatch && isDateMatch;
         });
-  
-        console.log("Filtered Data:", filteredData); // Debugging log
-  
+
+        // Group the data by description and count resolved issues
         const groupedData = filteredData.reduce((acc, item) => {
           const desc = Array.isArray(item.Description) ? item.Description[0] : "N/A";
           if (!acc[desc]) {
@@ -76,16 +66,22 @@ export default function Visualization() {
           }
           return acc;
         }, {});
-        const sortedData = Object.keys(groupedData)
-              .map((key) => ({
-              description: key,
-              resolved: groupedData[key].resolved,
-  }))
-              .sort((a, b) => b.resolved - a.resolved); 
-  
-        const labels = Object.keys(groupedData);
-        const resolvedCounts = labels.map((label) => groupedData[label].resolved);
-  
+
+        let labels = Object.keys(groupedData);
+        let resolvedCounts = labels.map((label) => groupedData[label].resolved);
+
+        // Sort the data by resolvedCounts in descending order
+        const sortedData = labels
+          .map((label, index) => ({
+            label,
+            resolved: resolvedCounts[index],
+          }))
+          .sort((a, b) => b.resolved - a.resolved);
+
+        // Extract sorted labels and resolvedCounts
+        labels = sortedData.map((item) => item.label);
+        resolvedCounts = sortedData.map((item) => item.resolved);
+
         setData({ labels, resolvedCounts });
       } catch (error) {
         console.error("Error fetching data from Firestore:", error);
@@ -94,10 +90,19 @@ export default function Visualization() {
         setLoading(false);
       }
     };
-  
+
     fetchDataFromFirestore();
-  }, [filters]);
-  
+  }, [filters, loggedInUserDepartment]); // Re-fetch when filters or department changes
+
+  // Function to generate random colors for the Pie chart
+  const generateColors = (count) => {
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+      const randomColor = `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.6)`;
+      colors.push(randomColor);
+    }
+    return colors;
+  };
 
   const chartData = {
     labels: data.labels,
@@ -105,8 +110,8 @@ export default function Visualization() {
       {
         label: "Resolved Reports",
         data: data.resolvedCounts,
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: generateColors(data.labels.length), // Apply dynamic colors to each data point
+        borderColor: generateColors(data.labels.length).map((color) => color.replace("0.6", "1")),
         borderWidth: 1,
       },
     ],
@@ -179,55 +184,43 @@ export default function Visualization() {
 
   return (
     <div>
-      <Navbar/>
+      <Navbar />
       <div className={`${styles.container}`}>
-        <div className="">
-          <div className={`row ${styles.row}`}>
-          <div className={`col-md-4 col-large-4`}>
-              <div className={`${styles.sidebar}`}>
-                <ul>
-                  <li
-                    className={selectedVisualization === "Report Trends" ? styles.active : ""}
-                    onClick={() => setSelectedVisualization("Report Trends")}
-                  >
-                    Report Trends
-                  </li>
-                  <li
-                    className={selectedVisualization === "Most Reported Problems" ? styles.active : ""}
-                    onClick={() => setSelectedVisualization("Most Reported Problems")}
-                  >
-                    Most Reported Problems
-                  </li>
-                  <li
-                    className={selectedVisualization === "Date Range Analysis" ? styles.active : ""}
-                    onClick={() => setSelectedVisualization("Date Range Analysis")}
-                  >
-                    Date Range Analysis
-                  </li>
-                </ul>
+        <div className={`row ${styles.row}`}>
+          <div className={`col-md-2 ${styles.lk}`}>
+            <div className={`${styles.sidebar}`}>
+              <ul>
+                <li
+                  className={selectedVisualization === "Report Trends" ? styles.active : ""}
+                  onClick={() => setSelectedVisualization("Report Trends")}
+                >
+                  Report Trends
+                </li>
+                <li
+                  className={selectedVisualization === "Most Reported Problems" ? styles.active : ""}
+                  onClick={() => setSelectedVisualization("Most Reported Problems")}
+                >
+                  Most Reported Problems
+                </li>
+                <li
+                  className={selectedVisualization === "Date Range Analysis" ? styles.active : ""}
+                  onClick={() => setSelectedVisualization("Date Range Analysis")}
+                >
+                  Date Range Analysis
+                </li>
+              </ul>
             </div>
+          </div>
+          <div className={`col-sm-12 col-md-8 ${styles.mainContent}`}>
+            <Filters onFilterChange={setFilters} loggedInUserDepartment={loggedInUserDepartment} />
+            <div className={styles.chartContainer}>
+              {selectedVisualization === "Report Trends" && <Bar data={chartData} options={options} />}
+              {selectedVisualization === "Most Reported Problems" && <Pie data={chartData} options={options} />}
+              {selectedVisualization === "Date Range Analysis" && <Line data={chartData} options={options} />}
             </div>
-            <div className={`col-sm-12 col-md-4 col-lg-6  ${styles.mainContent}`}>
-              <div className={``}>
-                <Filters onFilterChange={setFilters} />
-
-                <div className={styles.chartContainer}>
-                  {selectedVisualization === "Report Trends" && (
-                    <Bar data={chartData} options={options} />
-                  )}
-                  {selectedVisualization === "Most Reported Problems" && (
-                    <Pie data={chartData} options={options} />
-                  )}
-                  {selectedVisualization === "Date Range Analysis" && (
-                    <Line data={chartData} options={options} />
-                  )}
-                </div>
-              </div>
-            </div>
+          </div>
         </div>
       </div>
-      </div>
-
       <Footer />
     </div>
   );

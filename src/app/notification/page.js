@@ -179,13 +179,8 @@ export default function Notification() {
         } else if (description.includes("infrastructure")) {
           role = "Technician";
         } else if (
-          [
-            "safety",
-            "locked",
-            "destructive noise",
-            "property vandalism",
-            "Illegal trading",
-          ].some((keyword) => description.includes(keyword.toLowerCase()))
+          ["safety", "locked", "destructive noise", "property vandalism", "Illegal trading","other", "abuse"
+           ].some((keyword) => description.includes(keyword.toLowerCase()))
         ) {
           role = "Security";
         }
@@ -210,7 +205,6 @@ export default function Notification() {
       }
     }
   };
-  // Render Image with Clickable Modal
   const renderImage = (image) => {
     if (!image) return <p>No image available</p>;
 
@@ -219,12 +213,11 @@ export default function Notification() {
         src={image}
         alt="Report image"
         className={styles.image}
-        onClick={() => setExpandedImage(image)} // Set image to be expanded
+        onClick={() => setExpandedImage(image)} 
       />
     );
   };
 
-  // Modal for expanded image
   const renderModal = () => {
     if (!expandedImage) return null;
 
