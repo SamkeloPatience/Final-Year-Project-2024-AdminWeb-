@@ -1,13 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import {
-  collection,
-  getDocs,
-  doc,
-  setDoc,
-  deleteDoc,
-  getDoc,
-} from "firebase/firestore";
+import { collection, getDocs, doc, setDoc, deleteDoc, getDoc,} from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig";
 import Navbar from "@components/Navbar";
 import Footer from "@components/Footer";
@@ -15,15 +8,23 @@ import styles from "@styles/notification.module.css";
 import Stack from "./stack";
 import { Dropdown } from "react-bootstrap";
 
-// Fetching report based on admin's department
+// Fetching report based on admin's department and sorting by date
 async function fetchDataFromFirestore(stack, userDepartment) {
   try {
     const collectionName =
       userDepartment === "PPO" ? "ppo_department" : "psd_department";
     const colRef = collection(db, collectionName);
     const querySnapshot = await getDocs(colRef);
+
+    // Get and sort data based on TimeStamp
+    const sortedData = [];
     querySnapshot.forEach((doc) => {
       const docData = { id: doc.id, ...doc.data() };
+      sortedData.push(docData);
+    });
+    sortedData.sort((a, b) => b.TimeStamp.seconds - a.TimeStamp.seconds);
+
+    sortedData.forEach((docData) => {
       stack.push(docData);
     });
 
@@ -35,45 +36,30 @@ async function fetchDataFromFirestore(stack, userDepartment) {
 }
 
 async function fetchStaffByDepartmentAndRole(userDepartment, role) {
-  console.log(
-    "Fetching staff for department:",
-    userDepartment,
-    "and role:",
-    role
-  );
   const assignColRef = collection(db, "Users");
   const assignSnapshot = await getDocs(assignColRef);
   const assignItems = [];
 
   assignSnapshot.forEach((doc) => {
     const staffData = doc.data();
-    console.log("Staff data:", staffData);
     if (staffData.department === userDepartment && staffData.role === role) {
       assignItems.push({ id: doc.id, ...staffData });
     }
   });
 
-  console.log("Fetched staff items:", assignItems);
   return assignItems;
 }
 
 async function assignTask(collectionName, itemId, assignee, setData, data) {
   try {
-    console.log(
-      `Assigning task from ${collectionName}, itemId: ${itemId}, to assignee: ${assignee}`
-    );
-
     const docRef = doc(db, collectionName, itemId);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
       const dataDoc = docSnap.data();
       const timestamp = new Date();
-
-      // Getting the user's department from local storage
       const userDepartment = localStorage.getItem("userDepartment");
 
-      // Storing in either PPO_Staff or PSD_Staff based on the department
       if (userDepartment === "PPO") {
         await setDoc(doc(db, "PPO_Staff", itemId), {
           ...dataDoc,
@@ -90,7 +76,6 @@ async function assignTask(collectionName, itemId, assignee, setData, data) {
         });
       }
 
-      // Write to Tempo Collection
       await setDoc(doc(db, "Tempo", itemId), {
         ...dataDoc,
         assignedTo: assignee,
@@ -98,10 +83,8 @@ async function assignTask(collectionName, itemId, assignee, setData, data) {
         status: "In Progress",
       });
 
-      // Deleting the original document
       await deleteDoc(docRef);
 
-      // Removing Report from local state
       setData((prevData) => {
         const updatedCollection = prevData[collectionName].filter(
           (item) => item.id !== itemId
@@ -152,8 +135,6 @@ export default function Notification() {
   }, []);
 
   const handleDropdownToggle = async (itemId, collectionName) => {
-    console.log("Toggling dropdown for itemId:", itemId);
-
     if (activeDropdown === itemId) {
       setActiveDropdown(null);
       setDropdownItems((prevState) => ({ ...prevState, [itemId]: [] }));
@@ -167,11 +148,9 @@ export default function Notification() {
           item.Description && item.Description.length > 0
             ? item.Description[0].toLowerCase()
             : "";
-        console.log("Description found:", description);
 
         let role = null;
 
-        // Matching roles based on the first description element
         if (description.includes("electricity")) {
           role = "Electrician";
         } else if (description.includes("plumbing")) {
@@ -191,26 +170,20 @@ export default function Notification() {
         }
 
         if (role) {
-          console.log("Role matched:", role);
           const staff = await fetchStaffByDepartmentAndRole(
             localStorage.getItem("userDepartment"),
             role
           );
-          console.log("Staff fetched:", staff);
           setDropdownItems((prevState) => ({
             ...prevState,
             [itemId]: staff,
           }));
           setActiveDropdown(itemId);
-        } else {
-          console.warn("No role matched for the description:", description);
         }
-      } else {
-        console.error("Item not found for itemId:", itemId);
       }
     }
   };
-  // Render Image with Clickable Modal
+
   const renderImage = (image) => {
     if (!image) return <p>No image available</p>;
 
@@ -219,12 +192,11 @@ export default function Notification() {
         src={image}
         alt="Report image"
         className={styles.image}
-        onClick={() => setExpandedImage(image)} // Set image to be expanded
+        onClick={() => setExpandedImage(image)}
       />
     );
   };
 
-  // Modal for expanded image
   const renderModal = () => {
     if (!expandedImage) return null;
 
@@ -241,6 +213,7 @@ export default function Notification() {
       </div>
     );
   };
+
   if (loading) {
     return <p>Loading data...</p>;
   }
@@ -295,7 +268,7 @@ export default function Notification() {
                         "N/A"
                       )}
                     </p>
-                    <p className={`${styles.Time}`}>
+                    <p className={styles.Time}>
                       ReportedAt
                       <br />
                       {item.TimeStamp
@@ -322,21 +295,22 @@ export default function Notification() {
                       </Dropdown.Toggle>
 
                       <Dropdown.Menu>
-                        {(dropdownItems[item.id] || []).length > 0 ? (
-                          dropdownItems[item.id].map((dropdownItem) => (
+                        {dropdownItems[item.id]?.length > 0 ? (
+                          dropdownItems[item.id].map((staff) => (
                             <Dropdown.Item
-                              key={dropdownItem.id}
-                              onClick={() =>
-                                assignTask(
+                              key={staff.id}
+                              onClick={async () => {
+                                await assignTask(
                                   collectionName,
                                   item.id,
-                                  dropdownItem.name?.trim(),
+                                  staff.name,
                                   setData,
                                   data
-                                )
-                              }
+                                );
+                                setActiveDropdown(null);
+                              }}
                             >
-                              {dropdownItem.name?.trim() || "Not available"}
+                              {staff.name}
                             </Dropdown.Item>
                           ))
                         ) : (
@@ -349,13 +323,13 @@ export default function Notification() {
                   </div>
                 ))
               ) : (
-                <p>No items in this collection</p>
+                <p>No reports available in {collectionName} collection.</p>
               )}
             </div>
           </section>
         ))
       ) : (
-        <p>No data found</p>
+        <p>No data available</p>
       )}
       <Footer />
     </main>
