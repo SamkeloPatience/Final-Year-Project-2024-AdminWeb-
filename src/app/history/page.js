@@ -21,10 +21,12 @@ export default function History() {
         /* Fetching data from the appropriate history collection */
         const colRef = collection(db, collectionName);
         const querySnapshot = await getDocs(colRef);
-        const documents = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const documents = querySnapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .sort((a, b) => b.updatedAt.seconds - a.updatedAt.seconds); // Sorting by updatedAt
 
         setData(documents);
       } catch (error) {
@@ -42,7 +44,7 @@ export default function History() {
     return (
       <div>
         <Navbar />
-        <p>Loading...</p> {/* Added loading message */}
+        <p>Loading...</p>
       </div>
     );
   }
