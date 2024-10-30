@@ -11,12 +11,14 @@ export default function History() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expandedImage, setExpandedImage] = useState(null);
 
   useEffect(() => {
     async function fetchDataFromFirestore() {
       try {
         const userDepartment = localStorage.getItem("userDepartment");
-        const collectionName = userDepartment === "PPO" ? "PPO_History" : "PSD_History";
+        const collectionName =
+          userDepartment === "PPO" ? "PPO_History" : "PSD_History";
 
         /* Fetching data from the appropriate history collection */
         const colRef = collection(db, collectionName);
@@ -57,10 +59,42 @@ export default function History() {
     return (
       <div>
         <Navbar />
-        <h1 className={`justify-content-center`}>No Reports have been solved</h1>
+        <h1 className={`justify-content-center`}>
+          No Reports have been solved
+        </h1>
       </div>
     );
   }
+
+  const renderImage = (image) => {
+    if (!image) return <p>No image available</p>;
+
+    return (
+      <img
+        src={image}
+        alt="Report image"
+        className={styles.image}
+        onClick={() => setExpandedImage(image)}
+      />
+    );
+  };
+
+  const renderModal = () => {
+    if (!expandedImage) return null;
+
+    return (
+      <div className={styles.modal}>
+        <span className={styles.close} onClick={() => setExpandedImage(null)}>
+          &times;
+        </span>
+        <img
+          className={styles.modalImage}
+          src={expandedImage}
+          alt="Expanded View"
+        />
+      </div>
+    );
+  };
 
   return (
     <main>
@@ -95,7 +129,7 @@ export default function History() {
               )}
             </p>
             <p className={`${styles.reportedBy}`}>
-              ReportedBy:
+              Reported By:
               <br />
               {Array.isArray(item.ReportedBy) && item.ReportedBy.length ? (
                 <ul className={`${styles.list}`}>
@@ -120,6 +154,12 @@ export default function History() {
                 "N/A"
               )}
             </p>
+            <p className={styles.image}>
+              Image:
+              <br />
+              {renderImage(item.Image)}
+              {renderModal()}
+            </p>
             <p className={`${styles.status}`}>
               Status:
               <br />
@@ -133,6 +173,30 @@ export default function History() {
                 "N/A"
               )}
             </p>
+            <div className={`row`}>
+              <div className={`${styles.Feedback}`}>
+                <p className={styles.feedback}>
+                  Feedback from the Technician:
+                  <br />
+                  {item.remarks || "No feedback avaialable"}
+                </p>
+                
+                {/* Conditional rendering for user feedback */}
+                {item.feedback ? (
+                  <p className={styles.feedback}>
+                    Feedback from Users:
+                    <br />
+                    {item.feedback}
+                  </p>
+                ) : (
+                  <p className={styles.feedback}>
+                    Feedback from Users:
+                    <br />
+                    No feedback available
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         ))}
       </div>

@@ -187,7 +187,7 @@ export default function Notification() {
         src={image}
         alt="Report image"
         className={styles.image}
-        onClick={() => setExpandedImage(image)} // Set image to be expanded
+        onClick={() => setExpandedImage(image)} 
       />
     );
   };

@@ -2,7 +2,7 @@
     padding: 20px;
     background-color:white;
     margin-top: 140px;
-     
+    height: fit-content;
   }
   
   .secondContainer {
@@ -14,18 +14,24 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: fit-content;
+    height: 180px;
     
     
   }
   
-  .description, .location, .reportedBy, .image,.assignedTo{
+  .description, .location, .reportedBy,.assignedTo{
     flex: 1;
-    margin: 0 10px;
+    margin: 0px 10px;
     font-size: 14px;
   }
   .assignedAt{
     margin-top: 50px;
+  }
+  .image{
+    flex: 1; 
+  margin: 0 10px; 
+  height: 100px;
+
   }
   .status{
     flex: 1;

@@ -1,12 +1,14 @@
 "use client";
-import styles from "@styles/Navabar.module.css"
+import styles from "@styles/Navabar.module.css";
 import logo from "@images/Login/logo.png";
 import Image from "next/image";
 
 export default function Navbar() {
   return (
     <main>
-      <nav className={` col-lg-6 col-xlg-4 navbar navbar-expand-md text-bg-info ${styles.nav} `}>
+      <nav
+        className={` col-lg-6 col-xlg-4 navbar navbar-expand-md text-bg-info ${styles.nav} `}
+      >
         <ul>
           <Image
             src={logo}
@@ -19,13 +21,13 @@ export default function Navbar() {
           <ul className={`navbar-nav  `}>
             <li className="nav-item">
               <a className="nav-link" href="dashboard">
-              Home
+                Home
               </a>
             </li>
 
             <li className="nav-item">
               <a className="nav-link" href="notification">
-               Notification
+                Notification
               </a>
             </li>
             <li className="nav-item">
@@ -44,10 +46,15 @@ export default function Navbar() {
                 Visualization
               </a>
             </li>
-            
+
             <li className="nav-item">
               <a className="nav-link" href="aboutUs">
                 AboutUs
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/">
+                Logout
               </a>
             </li>
           </ul>

@@ -11,6 +11,7 @@ export default function Assigned() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expandedImage, setExpandedImage] = useState(null);
 
   useEffect(() => {
     async function fetchDataFromFirestore() {
@@ -22,10 +23,12 @@ export default function Assigned() {
         // Fetch data from the appropriate collection
         const colRef = collection(db, collectionName);
         const querySnapshot = await getDocs(colRef);
-        const documents = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const documents = querySnapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .sort((a, b) => b.assignAt?.seconds - a.assignAt?.seconds); // Sort by assignAt timestamp in descending order
 
         setData(documents);
       } catch (error) {
@@ -48,8 +51,38 @@ export default function Assigned() {
   }
 
   if (data.length === 0) {
-    return <h1 className={`justify-content-center`}>No Reports has been solved</h1>;
+    return <h1 className={`justify-content-center`}>No Reports have been solved</h1>;
   }
+
+  const renderImage = (image) => {
+    if (!image) return <p>No image available</p>;
+
+    return (
+      <img
+        src={image}
+        alt="Report image"
+        className={styles.image}
+        onClick={() => setExpandedImage(image)} 
+      />
+    );
+  };
+
+  const renderModal = () => {
+    if (!expandedImage) return null;
+
+    return (
+      <div className={styles.modal}>
+        <span className={styles.close} onClick={() => setExpandedImage(null)}>
+          &times;
+        </span>
+        <img
+          className={styles.modalImage}
+          src={expandedImage}
+          alt="Expanded View"
+        />
+      </div>
+    );
+  };
 
   return (
     <main>
@@ -63,7 +96,7 @@ export default function Assigned() {
               {item.Description?.length ? (
                 <ul className={`${styles.list}`}>
                   {item.Description.map((desc, i) => (
-                    <li key={i}>{`${desc}`}</li>
+                    <li key={i}>{desc}</li>
                   ))}
                 </ul>
               ) : (
@@ -75,9 +108,9 @@ export default function Assigned() {
               <br />
               {item.Location && item.Location.length === 3 ? (
                 <ul className={`${styles.list}`}>
-                  <li>{`${item.Location[0]}`}</li>
-                  <li>{`Block: ${item.Location[1]}`}</li>
-                  <li>{`Room: ${item.Location[2]}`}</li>
+                  <li>{item.Location[0]}</li>
+                  <li>Block: {item.Location[1]}</li>
+                  <li>Room: {item.Location[2]}</li>
                 </ul>
               ) : (
                 "N/A"
@@ -89,7 +122,7 @@ export default function Assigned() {
               {Array.isArray(item.ReportedBy) && item.ReportedBy.length ? (
                 <ul className={`${styles.list}`}>
                   {item.ReportedBy.map((desc, i) => (
-                    <li key={i}>{`${desc}`}</li>
+                    <li key={i}>{desc}</li>
                   ))}
                 </ul>
               ) : (
@@ -97,7 +130,7 @@ export default function Assigned() {
               )}
             </p>
             <p className={`${styles.assignedTo}`}>
-              Assigned To
+              Assigned To:
               <br />
               {item.assignedTo || "N/A"}
               <br />
@@ -107,8 +140,14 @@ export default function Assigned() {
                   : "N/A"}
               </span>
             </p>
+            <p className={styles.image}>
+              Image:
+              <br />
+              {renderImage(item.Image)}
+              {renderModal()}
+            </p>
             <p className={`${styles.status}`}>
-              Status
+              Status:
               <br />
               {item.status || "N/A"}
             </p>
