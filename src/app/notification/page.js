@@ -16,7 +16,7 @@ async function fetchDataFromFirestore(stack, userDepartment) {
     const colRef = collection(db, collectionName);
     const querySnapshot = await getDocs(colRef);
 
-    // Get and sort data based on TimeStamp
+    
     const sortedData = [];
     querySnapshot.forEach((doc) => {
       const docData = { id: doc.id, ...doc.data() };

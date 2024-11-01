@@ -18,8 +18,6 @@ export default function Login() {
     setLoading(true);
 
     try {
-      console.log("Starting login process...");
-
       // Query Firestore for the user with matching username and password
       const loginCollection = collection(db, "Users");
       const q = query(

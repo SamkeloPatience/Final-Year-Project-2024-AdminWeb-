@@ -1,18 +1,19 @@
-"use client";
-
+"use client"
 import { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig";
-import Navbar from "@components/Navbar";
-import Footer from "@components/Footer";
 import Filters from "../visualization/filter";
 import { Bar, Line, Pie } from "react-chartjs-2";
 import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, LineElement, PointElement, ArcElement } from "chart.js";
 import styles from "@styles/visualization.module.css";
+import Navbar from "@components/Navbar";
+import Footer from "@components/Footer";
+
 
 Chart.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement);
 
-export default function Visualization({ loggedInUserDepartment }) {
+export default function Visualization() {
+  const [userDepartment, setUserDepartment] = useState(null);
   const [data, setData] = useState({ labels: [], resolvedCounts: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,9 +25,21 @@ export default function Visualization({ loggedInUserDepartment }) {
   const [selectedVisualization, setSelectedVisualization] = useState("Report Trends");
 
   useEffect(() => {
+    // Fetch user department from localStorage on component mount
+    const department = localStorage.getItem("userDepartment");
+    if (department) {
+      setUserDepartment(department);
+    } else {
+      console.error("User department not found in localStorage.");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!userDepartment) return; // Wait until userDepartment is set
+    
     const fetchDataFromFirestore = async () => {
       try {
-        const collectionName = loggedInUserDepartment === "PPO" ? "PPO_History" : "PSD_History"; 
+        const collectionName = userDepartment === "PPO" ? "PPO_History" : "PSD_History";
         const colRef = collection(db, collectionName);
         const querySnapshot = await getDocs(colRef);
         const documents = querySnapshot.docs.map((doc) => ({
@@ -34,21 +47,23 @@ export default function Visualization({ loggedInUserDepartment }) {
           ...doc.data(),
         }));
 
+        // Data filtering logic
         const filteredData = documents.filter((item) => {
           const description = Array.isArray(item.Description) && item.Description.length > 0 
             ? item.Description[0]?.toLowerCase() 
             : typeof item.Description === "string" ? item.Description.toLowerCase() : "";
           const problemType = filters.problemType.toLowerCase();
-
+          
           const isTypeMatch = filters.problemType === "All" || description.includes(problemType);
           const updatedAt = item.updatedAt ? item.updatedAt.toDate() : null;
-          const isDateMatch =
+          const isDateMatch = 
             (!filters.startDate || (updatedAt && updatedAt >= new Date(filters.startDate))) &&
             (!filters.endDate || (updatedAt && updatedAt <= new Date(filters.endDate)));
 
           return isTypeMatch && isDateMatch;
         });
 
+        // Group and sort data
         const groupedData = filteredData.reduce((acc, item) => {
           const desc = Array.isArray(item.Description) ? item.Description[0] : "N/A";
           if (!acc[desc]) {
@@ -83,7 +98,7 @@ export default function Visualization({ loggedInUserDepartment }) {
     };
 
     fetchDataFromFirestore();
-  }, [filters, loggedInUserDepartment]);
+  }, [filters, userDepartment]);
 
   const generateColors = (count) => {
     return Array.from({ length: count }, () =>
@@ -170,7 +185,7 @@ export default function Visualization({ loggedInUserDepartment }) {
             </div>
           </div>
           <div className={`col-sm-12 col-md-8 ${styles.mainContent}`}>
-            <Filters onFilterChange={setFilters} loggedInUserDepartment={loggedInUserDepartment} />
+            <Filters onFilterChange={setFilters} userDepartment={userDepartment} />
             <div className={styles.chartContainer}>
               {selectedVisualization === "Report Trends" && <Bar data={chartData} options={options} />}
               {selectedVisualization === "Most Reported Problems" && <Pie data={chartData} options={options} />}

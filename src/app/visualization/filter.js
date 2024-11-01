@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig"; // Adjust your Firebase config import
 
-function Filters({ onFilterChange, loggedInUserDepartment }) {
+function Filters({ onFilterChange, userDepartment }) {
   const [problemType, setProblemType] = useState("All");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -11,9 +11,16 @@ function Filters({ onFilterChange, loggedInUserDepartment }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Retrieve userDepartment from localStorage if not provided as a prop
+    const department = userDepartment || localStorage.getItem("userDepartment");
+    if (!department) {
+      console.error("User department not found.");
+      return;
+    }
+
     const fetchProblemTypes = async () => {
       try {
-        const collectionName = loggedInUserDepartment === "PPO" ? "PPO_History" : "PSD_History";
+        const collectionName = department === "PPO" ? "PPO_History" : "PSD_History";
         const colRef = collection(db, collectionName);
         const querySnapshot = await getDocs(colRef);
         const documents = querySnapshot.docs.map(doc => doc.data());
@@ -25,15 +32,15 @@ function Filters({ onFilterChange, loggedInUserDepartment }) {
         });
 
         setProblemTypes(["All", ...Array.from(uniqueTypes)]);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching problem types:", error);
+      } finally {
         setLoading(false);
       }
     };
 
     fetchProblemTypes();
-  }, [loggedInUserDepartment]);
+  }, [userDepartment]);
 
   const handleFilterChange = () => {
     if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
