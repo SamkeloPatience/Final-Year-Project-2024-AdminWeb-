@@ -27,12 +27,12 @@ export default function Navbar() {
 
             <li className="nav-item">
               <a className="nav-link" href="notification">
-                Notification
+                Report
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="assigned">
-                Assignment
+                Assigned_Report
               </a>
             </li>
             <li className="nav-item">

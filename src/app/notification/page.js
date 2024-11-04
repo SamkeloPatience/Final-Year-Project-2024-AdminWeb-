@@ -110,6 +110,7 @@ export default function Notification() {
   const [dropdownItems, setDropdownItems] = useState({});
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [expandedImage, setExpandedImage] = useState(null);
+  const [expandedImageId, setExpandedImageId] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -179,31 +180,55 @@ export default function Notification() {
     }
   };
 
-  const renderImage = (image) => {
-    if (!image) return <p>No image available</p>;
 
-    return (
-      <img
-        src={image}
-        alt="Report image"
-        className={styles.image}
-        onClick={() => setExpandedImage(image)} 
-      />
-    );
-  };
+  // Function to handle image click and update state
+const handleImageClick = (image, itemId) => {
+  console.log("Image clicked:", image, "ID:", itemId);
+  setExpandedImage(image);
+  setExpandedImageId(itemId);
+};
 
+// Function to render each report image
+const renderImage = (image, itemId) => {
+  if (!image) return <p>No image available</p>;
+
+  return (
+    <img
+      src={image}
+      alt="Report image"
+      className={styles.image}
+      onClick={() => handleImageClick(image, itemId)} 
+    />
+  );
+};
+
+  // Function to render the modal
   const renderModal = () => {
     if (!expandedImage) return null;
 
     return (
-      <div className={styles.modal}>
-        <span className={styles.close} onClick={() => setExpandedImage(null)}>
+      <div 
+        className={styles.modal} 
+        onClick={() => {
+          setExpandedImage(null); 
+          setExpandedImageId(null); 
+        }}
+      >
+        <span
+          className={styles.close}
+          onClick={(e) => {
+            e.stopPropagation(); 
+            setExpandedImage(null);
+            setExpandedImageId(null);
+          }}
+        >
           &times;
         </span>
         <img
-          className={styles.modalImage}
+          className={`${styles.modalImage}`}
           src={expandedImage}
           alt="Expanded View"
+          onClick={(e) => e.stopPropagation()} 
         />
       </div>
     );
@@ -272,11 +297,10 @@ export default function Notification() {
                           ).toLocaleString()
                         : "N/A"}
                     </p>
-                    <p className={styles.image}>
+                    <p className={styles.image2}>
                       Image:
                       <br />
-                      {renderImage(item.Image)}
-                      {renderModal()}
+                      {renderImage(item.Image, item.id)}
                     </p>
                     <Dropdown show={activeDropdown === item.id}>
                       <Dropdown.Toggle
@@ -326,6 +350,7 @@ export default function Notification() {
       ) : (
         <p>No data available</p>
       )}
+    {expandedImage && expandedImageId && renderModal()}
       <Footer />
     </main>
   );

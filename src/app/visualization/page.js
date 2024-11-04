@@ -1,16 +1,28 @@
-"use client"
+"use client";
 import { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../notification/api/firebaseConfig";
 import Filters from "../visualization/filter";
 import { Bar, Line, Pie } from "react-chartjs-2";
-import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, LineElement, PointElement, ArcElement } from "chart.js";
+import {
+  Chart,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  LineElement,
+  PointElement,
+  ArcElement,
+} from "chart.js";
+import ChartDataLabels from 'chartjs-plugin-datalabels'; 
 import styles from "@styles/visualization.module.css";
 import Navbar from "@components/Navbar";
 import Footer from "@components/Footer";
 
 
-Chart.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement);
+Chart.register( CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip,Legend, ArcElement, ChartDataLabels );
 
 export default function Visualization() {
   const [userDepartment, setUserDepartment] = useState(null);
@@ -25,7 +37,6 @@ export default function Visualization() {
   const [selectedVisualization, setSelectedVisualization] = useState("Report Trends");
 
   useEffect(() => {
-    // Fetch user department from localStorage on component mount
     const department = localStorage.getItem("userDepartment");
     if (department) {
       setUserDepartment(department);
@@ -35,7 +46,7 @@ export default function Visualization() {
   }, []);
 
   useEffect(() => {
-    if (!userDepartment) return; // Wait until userDepartment is set
+    if (!userDepartment) return; 
     
     const fetchDataFromFirestore = async () => {
       try {
@@ -47,14 +58,16 @@ export default function Visualization() {
           ...doc.data(),
         }));
 
-        // Data filtering logic
+        console.log("Fetched documents:", documents);
+
         const filteredData = documents.filter((item) => {
           const description = Array.isArray(item.Description) && item.Description.length > 0 
-            ? item.Description[0]?.toLowerCase() 
-            : typeof item.Description === "string" ? item.Description.toLowerCase() : "";
-          const problemType = filters.problemType.toLowerCase();
-          
+            ? item.Description[0]?.toLowerCase().trim() 
+            : typeof item.Description === "string" ? item.Description.toLowerCase().trim() : "";
+
+          const problemType = filters.problemType.toLowerCase().trim();
           const isTypeMatch = filters.problemType === "All" || description.includes(problemType);
+
           const updatedAt = item.updatedAt ? item.updatedAt.toDate() : null;
           const isDateMatch = 
             (!filters.startDate || (updatedAt && updatedAt >= new Date(filters.startDate))) &&
@@ -63,7 +76,6 @@ export default function Visualization() {
           return isTypeMatch && isDateMatch;
         });
 
-        // Group and sort data
         const groupedData = filteredData.reduce((acc, item) => {
           const desc = Array.isArray(item.Description) ? item.Description[0] : "N/A";
           if (!acc[desc]) {
@@ -129,6 +141,16 @@ export default function Visualization() {
         callbacks: {
           label: (tooltipItem) => `${tooltipItem.dataset.label || ""}: ${tooltipItem.raw}`,
         },
+      },
+      datalabels: {
+        formatter: (value, context) => {
+          const total = context.chart.data.datasets[0].data.reduce((acc, val) => acc + val, 0);
+          const percentage = ((value / total) * 100).toFixed(2) + '%';
+          return percentage;
+        },
+        color: '#fff', 
+        anchor: 'end',
+        align: 'start',
       },
     },
     scales: {
